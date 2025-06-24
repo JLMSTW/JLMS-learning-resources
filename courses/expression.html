@@ -10,7 +10,7 @@
   <div id="content"></div>
 
   <script>
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbwWHzQ3l92XertCCDs5CD52FDh4NsGQQYN77USJTS96SLj7k1ARiX2QwoZj6CyZ4KXx8g/exec'; // 換成你的實際 API URL
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbwWHzQ3l92XertCCDs5CD52FDh4NsGQQYN77USJTS96SLj7k1ARiX2QwoZj6CyZ4KXx8g/exec';
 
     fetch(apiUrl)
       .then(response => response.json())
@@ -25,8 +25,8 @@
             html += ` - <a href="${item['YouTube']}" target="_blank">YouTube</a>`;
           }
 
-          if (item['PDF檔案名稱 (traditionnel)']) {
-            html += ` - <a href="https://drive.google.com/file/d/${item['PDF檔案名稱 (traditionnel)']}/preview" target="_blank">PDF預覽</a>`;
+          if (item['PDF檔案ID (traditionnel)']) {
+            html += ` - <a href="https://drive.google.com/file/d/${item['PDF檔案ID (traditionnel)']}/preview" target="_blank">PDF預覽</a>`;
           }
 
           html += '</li>';

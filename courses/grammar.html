@@ -10,26 +10,23 @@
   <div id="content"></div>
 
   <script>
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbwWHzQ3l92XertCCDs5CD52FDh4NsGQQYN77USJTS96SLj7k1ARiX2QwoZj6CyZ4KXx8g/exec'; // 你的API URL
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbwWHzQ3l92XertCCDs5CD52FDh4NsGQQYN77USJTS96SLj7k1ARiX2QwoZj6CyZ4KXx8g/exec'; // 請填入你的 Apps Script URL
 
     fetch(apiUrl)
       .then(response => response.json())
       .then(data => {
-        // 過濾出分類是「Grammar」的資料
         const grammarItems = data.filter(item => item['分類Catégorie'] === 'Grammar');
 
         let html = '<ul>';
         grammarItems.forEach(item => {
           html += `<li>${item['名稱Titre']} (程度: ${item['程度Niveau']})`;
 
-          // 加上 YouTube 連結
           if (item['YouTube']) {
             html += ` - <a href="${item['YouTube']}" target="_blank">YouTube</a>`;
           }
 
-          // 加上 PDF 預覽 (繁體版)
-          if (item['PDF檔案名稱 (traditionnel)']) {
-            html += ` - <a href="https://drive.google.com/file/d/${item['PDF檔案名稱 (traditionnel)']}/preview" target="_blank">PDF預覽</a>`;
+          if (item['PDF檔案ID (traditionnel)']) {
+            html += ` - <a href="https://drive.google.com/file/d/${item['PDF檔案ID (traditionnel)']}/preview" target="_blank">PDF預覽</a>`;
           }
 
           html += '</li>';
