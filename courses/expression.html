@@ -2,10 +2,10 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>表達句型</title>
+  <title>Expressions</title>
 </head>
 <body>
-  <h1>表達句型</h1>
+  <h1>Expressions</h1>
 
   <div id="content"></div>
 
@@ -15,18 +15,20 @@
     fetch(apiUrl)
       .then(response => response.json())
       .then(data => {
-        const expressionItems = data.filter(item => item['分類Catégorie'] === 'Expression');
+        const items = data.filter(item => item['分類Catégorie'] === 'Expressions');
 
         let html = '<ul>';
-        expressionItems.forEach(item => {
-          html += `<li>${item['名稱Titre']} (程度: ${item['程度Niveau']})`;
+        items.forEach(item => {
+          html += `<li>${item['名稱Titre']} — Niveau: ${item['程度Niveau']}`;
 
           if (item['YouTube']) {
-            html += ` - <a href="${item['YouTube']}" target="_blank">YouTube</a>`;
+            html += ` — <a href="${item['YouTube']}" target="_blank">YouTube</a>`;
           }
-
           if (item['PDF檔案ID (traditionnel)']) {
-            html += ` - <a href="https://drive.google.com/file/d/${item['PDF檔案ID (traditionnel)']}/preview" target="_blank">PDF預覽</a>`;
+            html += ` — <a href="https://drive.google.com/file/d/${item['PDF檔案ID (traditionnel)']}/preview" target="_blank">PDF (繁體)</a>`;
+          }
+          if (item['PDF檔案ID (simplifié)']) {
+            html += ` — <a href="https://drive.google.com/file/d/${item['PDF檔案ID (simplifié)']}/preview" target="_blank">PDF (简体)</a>`;
           }
 
           html += '</li>';

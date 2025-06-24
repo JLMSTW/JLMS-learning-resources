@@ -2,31 +2,33 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>文法練習</title>
+  <title>Grammaire</title>
 </head>
 <body>
-  <h1>文法練習</h1>
+  <h1>Grammaire</h1>
 
   <div id="content"></div>
 
   <script>
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbwWHzQ3l92XertCCDs5CD52FDh4NsGQQYN77USJTS96SLj7k1ARiX2QwoZj6CyZ4KXx8g/exec'; // 請填入你的 Apps Script URL
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbwWHzQ3l92XertCCDs5CD52FDh4NsGQQYN77USJTS96SLj7k1ARiX2QwoZj6CyZ4KXx8g/exec';
 
     fetch(apiUrl)
       .then(response => response.json())
       .then(data => {
-        const grammarItems = data.filter(item => item['分類Catégorie'] === 'Grammar');
+        const items = data.filter(item => item['分類Catégorie'] === 'Grammaire');
 
         let html = '<ul>';
-        grammarItems.forEach(item => {
-          html += `<li>${item['名稱Titre']} (程度: ${item['程度Niveau']})`;
+        items.forEach(item => {
+          html += `<li>${item['名稱Titre']} — Niveau: ${item['程度Niveau']}`;
 
           if (item['YouTube']) {
-            html += ` - <a href="${item['YouTube']}" target="_blank">YouTube</a>`;
+            html += ` — <a href="${item['YouTube']}" target="_blank">YouTube</a>`;
           }
-
           if (item['PDF檔案ID (traditionnel)']) {
-            html += ` - <a href="https://drive.google.com/file/d/${item['PDF檔案ID (traditionnel)']}/preview" target="_blank">PDF預覽</a>`;
+            html += ` — <a href="https://drive.google.com/file/d/${item['PDF檔案ID (traditionnel)']}/preview" target="_blank">PDF (繁體)</a>`;
+          }
+          if (item['PDF檔案ID (simplifié)']) {
+            html += ` — <a href="https://drive.google.com/file/d/${item['PDF檔案ID (simplifié)']}/preview" target="_blank">PDF (简体)</a>`;
           }
 
           html += '</li>';
