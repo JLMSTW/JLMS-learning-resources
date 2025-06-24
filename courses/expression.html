@@ -5,8 +5,37 @@
   <title>表達句型</title>
 </head>
 <body>
-  <h1>表達句型頁面</h1>
-  <p>之後這裡會顯示表達句型教材內容</p>
-  <a href="../index.html">回首頁</a>
+  <h1>表達句型</h1>
+
+  <div id="content"></div>
+
+  <script>
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbwWHzQ3l92XertCCDs5CD52FDh4NsGQQYN77USJTS96SLj7k1ARiX2QwoZj6CyZ4KXx8g/exec'; // 換成你的實際 API URL
+
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => {
+        const expressionItems = data.filter(item => item['分類Catégorie'] === 'Expression');
+
+        let html = '<ul>';
+        expressionItems.forEach(item => {
+          html += `<li>${item['名稱Titre']} (程度: ${item['程度Niveau']})`;
+
+          if (item['YouTube']) {
+            html += ` - <a href="${item['YouTube']}" target="_blank">YouTube</a>`;
+          }
+
+          if (item['PDF檔案名稱 (traditionnel)']) {
+            html += ` - <a href="https://drive.google.com/file/d/${item['PDF檔案名稱 (traditionnel)']}/preview" target="_blank">PDF預覽</a>`;
+          }
+
+          html += '</li>';
+        });
+        html += '</ul>';
+
+        document.getElementById('content').innerHTML = html;
+      })
+      .catch(err => console.error(err));
+  </script>
 </body>
 </html>
