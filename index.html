@@ -4,36 +4,31 @@
   <meta charset="UTF-8" />
   <title>JLMS Teaching Platform</title>
 
-  <!-- ✅ Firebase (namespaced) CDN -->
+  <!-- Firebase CDN (namespaced v10) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
 
   <script>
-    /* === 🔑 YOUR PROJECT CONFIG ===
-       到 Firebase Console → ⚙️ Project settings → General
-       找 Web API Key & 其餘欄位，整段貼過來
-    */
+    /* ------- JLMS Firebase config (copy-exactly) ------- */
     const firebaseConfig = {
-  apiKey: "AIzaSyAaNDRralbB3_Ybbivz9E1QrOmk3VMlCN4",
-  authDomain: "jlms-teaching-platform.firebaseapp.com",
-  projectId: "jlms-teaching-platform",
-  storageBucket: "jlms-teaching-platform.firebasestorage.app",
-  messagingSenderId: "193970336189",
-  appId: "1:193970336189:web:17572a6b9176a984a5a2d4",
-  measurementId: "G-DDG3NTYVQS"
-};
+      apiKey: "AIzaSyAaNDRralbB3_Ybbivz9E1QrQmk3VM1CN4",
+      authDomain: "jlms-teaching-platform.firebaseapp.com",
+      projectId: "jlms-teaching-platform",
+      storageBucket: "jlms-teaching-platform.appspot.com",
+      messagingSenderId: "193970336189",
+      appId: "1:193970336189:web:17572a6b9176a984a5a2d4",
+      measurementId: "G-DDG3NTYVQS"
+    };
 
-    // 🔧 init
+    /* init & auth-state check */
     firebase.initializeApp(firebaseConfig);
 
-    // 🌐 wait for DOM, then check auth
     window.onload = () => {
       firebase.auth().onAuthStateChanged(user => {
-        const s = document.getElementById("status");
+        const statusEl = document.getElementById("status");
         if (user) {
-          s.textContent = `👋 Welcome, ${user.email}`;
+          statusEl.textContent = `👋 Welcome, ${user.email}`;
         } else {
-          // not logged-in → back to login page
           window.location.href = "login.html";
         }
       });
@@ -41,8 +36,8 @@
   </script>
 
   <style>
-    body { font-family: sans-serif; padding: 2rem; }
-    h1   { margin-top: 0; }
+    body { font-family: Arial, sans-serif; padding: 2rem; }
+    h1  { margin-top: 0; }
   </style>
 </head>
 

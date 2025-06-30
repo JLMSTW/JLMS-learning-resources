@@ -4,26 +4,26 @@
   <meta charset="UTF-8" />
   <title>Log in</title>
 
-  <!-- ✅ Firebase (namespaced) CDN -->
+  <!-- Firebase CDN (namespaced v10) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
 
   <script>
-    /* === 同一份 config，務必跟 index.html 完全一致 === */
+    /* ------- same config as index.html ------- */
     const firebaseConfig = {
-  apiKey: "AIzaSyAaNDRralbB3_Ybbivz9E1QrOmk3VMlCN4",
-  authDomain: "jlms-teaching-platform.firebaseapp.com",
-  projectId: "jlms-teaching-platform",
-  storageBucket: "jlms-teaching-platform.firebasestorage.app",
-  messagingSenderId: "193970336189",
-  appId: "1:193970336189:web:17572a6b9176a984a5a2d4",
-  measurementId: "G-DDG3NTYVQS"
-};
+      apiKey: "AIzaSyAaNDRralbB3_Ybbivz9E1QrQmk3VM1CN4",
+      authDomain: "jlms-teaching-platform.firebaseapp.com",
+      projectId: "jlms-teaching-platform",
+      storageBucket: "jlms-teaching-platform.appspot.com",
+      messagingSenderId: "193970336189",
+      appId: "1:193970336189:web:17572a6b9176a984a5a2d4",
+      measurementId: "G-DDG3NTYVQS"
+    };
 
     firebase.initializeApp(firebaseConfig);
 
-    /* ---------------- LOGIN ---------------- */
-    window.login = () => {
+    /* ---------- LOGIN ---------- */
+    function login () {
       const email    = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
 
@@ -33,11 +33,11 @@
           window.location.href = "index.html";
         })
         .catch(err => alert("Login failed: " + err.message));
-    };
+    }
   </script>
 
   <style>
-    body { font-family: sans-serif; padding: 2rem; }
+    body  { font-family: Arial, sans-serif; padding: 2rem; }
     label { display:block; margin: .5rem 0; }
   </style>
 </head>
