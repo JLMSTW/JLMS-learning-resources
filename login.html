@@ -8,10 +8,10 @@
   <h1>Log in</h1>
   <label>Email: <input type="email" id="email" /></label><br />
   <label>Password: <input type="password" id="password" /></label><br />
-  <button onclick="login()">Log in</button>
+  <button id="login-btn">Log in</button>
 
-  <!-- ✅ Firebase SDK 模組化載入 -->
   <script type="module">
+    // ✅ 模組載入 Firebase SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -19,7 +19,7 @@
       apiKey: "AIzaSyAaNDRralbB3_Ybbivz9E1QrQmk3VM1CN4",
       authDomain: "jlms-teaching-platform.firebaseapp.com",
       projectId: "jlms-teaching-platform",
-      storageBucket: "jlms-teaching-platform.appspot.com", <!-- ✅ 修正這一行 -->
+      storageBucket: "jlms-teaching-platform.appspot.com",
       messagingSenderId: "193970336189",
       appId: "1:193970336189:web:17572a6b9176a984a5a2d4",
       measurementId: "G-DDG3NTYVQS"
@@ -28,7 +28,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    window.login = () => {
+    function login() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
@@ -40,7 +40,10 @@
         .catch(error => {
           alert("Login failed: " + error.message);
         });
-    };
+    }
+
+    // ✅ 加入按鈕監聽
+    document.getElementById("login-btn").addEventListener("click", login);
   </script>
 </body>
 </html>
