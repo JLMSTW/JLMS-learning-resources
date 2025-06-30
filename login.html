@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>會員登入</title>
+  <script type="module">
+    // Firebase SDK 載入
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    // 你的 Firebase 設定
+    const firebaseConfig = {
+      apiKey: "AIzaSyAaNDRralbB3_Ybbivz9E1QrQmk3VM1CN4",
+      authDomain: "jlms-teaching-platform.firebaseapp.com",
+      projectId: "jlms-teaching-platform",
+      storageBucket: "jlms-teaching-platform.appspot.com",
+      messagingSenderId: "193970336189",
+      appId: "1:193970336189:web:17572a6b9176a984a5a2d4",
+      measurementId: "G-DDG3NTYVQS"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // 登入按鈕事件
+    window.login = () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+          alert("登入成功！");
+          window.location.href = "index.html"; // 或導向其他頁面
+        })
+        .catch(error => {
+          alert("登入失敗：" + error.message);
+        });
+    };
+  </script>
+</head>
+<body>
+  <h1>會員登入</h1>
+  <label>電子信箱：<input type="email" id="email" /></label><br />
+  <label>密碼：<input type="password" id="password" /></label><br />
+  <button onclick="login()">登入</button>
+</body>
+</html>
