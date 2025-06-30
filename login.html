@@ -3,12 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <title>Log in</title>
+</head>
+<body>
+  <h1>Log in</h1>
+  <label>Email: <input type="email" id="email" /></label><br />
+  <label>Password: <input type="password" id="password" /></label><br />
+  <button onclick="login()">Log in</button>
 
-  <!-- ✅ Firebase SDK (CDN) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+  <!-- ✅ Firebase SDK 模組化載入 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAaNDRralbB3_Ybbivz9E1QrQmk3VM1CN4",
       authDomain: "jlms-teaching-platform.firebaseapp.com",
@@ -19,13 +25,14 @@
       measurementId: "G-DDG3NTYVQS"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-    function login() {
+    window.login = () => {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
-      firebase.auth().signInWithEmailAndPassword(email, password)
+      signInWithEmailAndPassword(auth, email, password)
         .then(userCredential => {
           alert("Login successful!");
           window.location.href = "index.html";
@@ -33,13 +40,7 @@
         .catch(error => {
           alert("Login failed: " + error.message);
         });
-    }
+    };
   </script>
-</head>
-<body>
-  <h1>Log in</h1>
-  <label>Email: <input type="email" id="email" /></label><br />
-  <label>Password: <input type="password" id="password" /></label><br />
-  <button onclick="login()">Log in</button>
 </body>
 </html>
