@@ -1,37 +1,47 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>JLMS Learning Resources</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        h1 { color: #333; }
-        .menu { margin-top: 40px; }
-        .menu a { 
-            display: inline-block; 
-            margin: 15px; 
-            padding: 15px 30px; 
-            background-color: #4CAF50; 
-            color: white; 
-            text-decoration: none; 
-            border-radius: 8px;
-            transition: background 0.3s;
+  <meta charset="UTF-8">
+  <title>JLMS Teaching Platform</title>
+
+  <!-- ✅ Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+
+  <script>
+    // ✅ Firebase 設定
+    const firebaseConfig = {
+      apiKey: "AIzaSyAaNDRralbB3_Ybbivz9E1QrQmk3VM1CN4",
+      authDomain: "jlms-teaching-platform.firebaseapp.com",
+      projectId: "jlms-teaching-platform",
+      storageBucket: "jlms-teaching-platform.appspot.com",
+      messagingSenderId: "193970336189",
+      appId: "1:193970336189:web:17572a6b9176a984a5a2d4",
+      measurementId: "G-DDG3NTYVQS"
+    };
+
+    // ✅ 初始化 Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // ✅ 登入狀態監聽
+    window.onload = function () {
+      firebase.auth().onAuthStateChanged(user => {
+        const statusEl = document.getElementById("status");
+
+        if (user) {
+          statusEl.innerText = `👋 Welcome, ${user.email}`;
+        } else {
+          window.location.href = "login.html";
         }
-        .menu a:hover {
-            background-color: #45a049;
-        }
-    </style>
+      });
+    };
+  </script>
 </head>
+
 <body>
+  <h1>JLMS Teaching Platform</h1>
+  <h2 id="status">Checking login status...</h2>
 
-<h1>JLMS Learning Resources</h1>
-
-<div class="menu">
-    <a href="courses/grammar.html">文法練習</a>
-    <a href="courses/expression.html">表達句型</a>
-    <a href="courses/news.html">新聞時事</a>
-    <a href="courses/vlog.html">Vlog 主題</a>
-</div>
-
+  <p>This is your student dashboard. (You can add more content here.)</p>
 </body>
 </html>
