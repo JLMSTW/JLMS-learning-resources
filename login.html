@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>會員登入</title>
+  <title>Log in</title>
 
-  <!-- ✅ Firebase SDK (CDN 方式) -->
+  <!-- ✅ Firebase SDK (CDN) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
 
   <script>
-    // ✅ 你的 Firebase 專案設定（用你自己那組）
     const firebaseConfig = {
       apiKey: "AIzaSyAaNDRralbB3_Ybbivz9E1QrQmk3VM1CN4",
       authDomain: "jlms-teaching-platform.firebaseapp.com",
@@ -20,29 +19,27 @@
       measurementId: "G-DDG3NTYVQS"
     };
 
-    // ✅ 初始化 Firebase
     firebase.initializeApp(firebaseConfig);
 
-    // ✅ 登入功能
     function login() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
       firebase.auth().signInWithEmailAndPassword(email, password)
         .then(userCredential => {
-          alert("登入成功！");
-          window.location.href = "index.html"; // 登入成功後導向
+          alert("Login successful!");
+          window.location.href = "index.html";
         })
         .catch(error => {
-          alert("登入失敗：" + error.message);
+          alert("Login failed: " + error.message);
         });
     }
   </script>
 </head>
 <body>
-  <h1>會員登入</h1>
-  <label>Email：<input type="email" id="email"></label><br />
-  <label>密碼：<input type="password" id="password"></label><br />
-  <button onclick="login()">登入</button>
+  <h1>Log in</h1>
+  <label>Email: <input type="email" id="email" /></label><br />
+  <label>Password: <input type="password" id="password" /></label><br />
+  <button onclick="login()">Log in</button>
 </body>
 </html>
