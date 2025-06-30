@@ -1,47 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>JLMS Teaching Platform</title>
 
-  <!-- ✅ Firebase SDK -->
+  <!-- ✅ Firebase (namespaced) CDN -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
 
   <script>
-    // ✅ Firebase 設定
+    /* === 🔑 YOUR PROJECT CONFIG ===
+       到 Firebase Console → ⚙️ Project settings → General
+       找 Web API Key & 其餘欄位，整段貼過來
+    */
     const firebaseConfig = {
-      apiKey: "AIzaSyAaNDRralbB3_Ybbivz9E1QrQmk3VM1CN4",
-      authDomain: "jlms-teaching-platform.firebaseapp.com",
-      projectId: "jlms-teaching-platform",
-      storageBucket: "jlms-teaching-platform.appspot.com",
-      messagingSenderId: "193970336189",
-      appId: "1:193970336189:web:17572a6b9176a984a5a2d4",
-      measurementId: "G-DDG3NTYVQS"
-    };
+  apiKey: "AIzaSyAaNDRralbB3_Ybbivz9E1QrOmk3VMlCN4",
+  authDomain: "jlms-teaching-platform.firebaseapp.com",
+  projectId: "jlms-teaching-platform",
+  storageBucket: "jlms-teaching-platform.firebasestorage.app",
+  messagingSenderId: "193970336189",
+  appId: "1:193970336189:web:17572a6b9176a984a5a2d4",
+  measurementId: "G-DDG3NTYVQS"
+};
 
-    // ✅ 初始化 Firebase
+    // 🔧 init
     firebase.initializeApp(firebaseConfig);
 
-    // ✅ 登入狀態監聽
-    window.onload = function () {
+    // 🌐 wait for DOM, then check auth
+    window.onload = () => {
       firebase.auth().onAuthStateChanged(user => {
-        const statusEl = document.getElementById("status");
-
+        const s = document.getElementById("status");
         if (user) {
-          statusEl.innerText = `👋 Welcome, ${user.email}`;
+          s.textContent = `👋 Welcome, ${user.email}`;
         } else {
+          // not logged-in → back to login page
           window.location.href = "login.html";
         }
       });
     };
   </script>
+
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    h1   { margin-top: 0; }
+  </style>
 </head>
 
 <body>
   <h1>JLMS Teaching Platform</h1>
-  <h2 id="status">Checking login status...</h2>
+  <h2 id="status">Checking login status…</h2>
 
-  <p>This is your student dashboard. (You can add more content here.)</p>
+  <p>This is your student dashboard. (Add more content here!)</p>
 </body>
 </html>
