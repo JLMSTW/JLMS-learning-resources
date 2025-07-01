@@ -9,7 +9,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
   <script>
-    /* -------  YOUR firebaseConfig  ------- */
     const firebaseConfig = {
       apiKey:            "AIzaSyAaNDRralbB3_Ybbivz9E1QrOmk3VMlCN4",
       authDomain:        "jlms-teaching-platform.firebaseapp.com",
@@ -21,7 +20,10 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    /* helper 取帳密 */
+    /* 讓登入狀態存進 localStorage（預設也是 LOCAL，加上這行最保險） */
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+    /* ↓ helper 讀取 email / password */
     function cred() {
       return {
         email:    document.getElementById('email').value.trim(),
@@ -29,20 +31,20 @@
       };
     }
 
-    /* Log in */
+    /* ↓ Log in */
     function login() {
       const { email, password } = cred();
       firebase.auth().signInWithEmailAndPassword(email, password)
-        .then(()   => window.location.href = 'index.html')
-        .catch(err => alert('Login failed: ' + err.message));
+        .then(() => location.href = 'index.html')
+        .catch(e => alert('Login failed: ' + e.message));
     }
 
-    /* Sign up → 自動登入 */
+    /* ↓ Sign up + 立即登入 */
     function signup() {
       const { email, password } = cred();
       firebase.auth().createUserWithEmailAndPassword(email, password)
-        .then(()   => window.location.href = 'index.html')
-        .catch(err => alert('Sign-up failed: ' + err.message));
+        .then(() => location.href = 'index.html')
+        .catch(e => alert('Sign-up failed: ' + e.message));
     }
   </script>
 
@@ -56,11 +58,11 @@
   <h1>Log in / Sign up</h1>
 
   <label>Email:
-    <input type="email" id="email" autocomplete="username" required />
+    <input type="email" id="email" required autocomplete="username" />
   </label>
 
   <label>Password:
-    <input type="password" id="password" autocomplete="current-password" required />
+    <input type="password" id="password" required autocomplete="current-password" />
   </label>
 
   <button onclick="login()">Log in</button>

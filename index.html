@@ -9,7 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
   <script>
-    /* ------- same config as login.html ------- */
+    /* ------- 你的專案設定 ------- */
     const firebaseConfig = {
       apiKey:            "AIzaSyAaNDRralbB3_Ybbivz9E1QrOmk3VMlCN4",
       authDomain:        "jlms-teaching-platform.firebaseapp.com",
@@ -21,26 +21,39 @@
     };
     firebase.initializeApp(firebaseConfig);
 
+    /* 監聽登入狀態並處理登出按鈕 */
     window.onload = () => {
-      const status = document.getElementById('status');
+      const status  = document.getElementById('status');
+      const logoutB = document.getElementById('logoutBtn');
+
       firebase.auth().onAuthStateChanged(user => {
         if (user) {
           status.textContent = `👋 Welcome, ${user.email}`;
+          logoutB.style.display = 'inline-block';          // ▶︎ 顯示按鈕
         } else {
-          window.location.href = 'login.html';
+          location.href = 'login.html';                    // ▶︎ 未登入回到 login
         }
       });
+
+      /* 登出 */
+      logoutB.onclick = () =>
+        firebase.auth().signOut().then(() => (location.href = 'login.html'));
     };
   </script>
 
   <style>
-    body { font-family:sans-serif; padding:2rem; }
-    h1  { margin-top:0; }
+    body { font-family: sans-serif; padding: 2rem; }
+    h1  { margin-top: 0; }
+    #logoutBtn { margin-top: 1rem; }
   </style>
 </head>
+
 <body>
   <h1>JLMS Teaching Platform</h1>
   <h2 id="status">Checking login status…</h2>
+
+  <!-- 🚪 Log-out 按鈕，預設隱藏 -->
+  <button id="logoutBtn" style="display:none">Log out</button>
 
   <p>This is your student dashboard. (Add more content here!)</p>
 </body>
