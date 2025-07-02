@@ -2,9 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Log in / Sign up</title>
 
-  <!-- Firebase CDN (compat) -->
+  <!-- ✅ Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet">
+
+  <!-- ✅ Firebase CDN (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
@@ -20,10 +24,8 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    /* 讓登入狀態存進 localStorage（預設也是 LOCAL，加上這行最保險） */
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-    /* ↓ helper 讀取 email / password */
     function cred() {
       return {
         email:    document.getElementById('email').value.trim(),
@@ -31,7 +33,6 @@
       };
     }
 
-    /* ↓ Log in */
     function login() {
       const { email, password } = cred();
       firebase.auth().signInWithEmailAndPassword(email, password)
@@ -39,7 +40,6 @@
         .catch(e => alert('Login failed: ' + e.message));
     }
 
-    /* ↓ Sign up + 立即登入 */
     function signup() {
       const { email, password } = cred();
       firebase.auth().createUserWithEmailAndPassword(email, password)
@@ -49,11 +49,38 @@
   </script>
 
   <style>
-    body  { font-family:sans-serif; padding:2rem; }
-    label { display:block; margin:.5rem 0; }
-    button{ margin-right:.5rem; }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      padding: 2rem;
+    }
+
+    label {
+      display: block;
+      margin: 0.5rem 0;
+    }
+
+    button {
+      margin-right: 0.5rem;
+    }
+
+    /* ✅ 手機 RWD 優化 */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      button {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+      }
+    }
   </style>
 </head>
+
 <body>
   <h1>Log in / Sign up</h1>
 
