@@ -2,14 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JLMS Teaching Platform</title>
 
-  <!-- Firebase CDN (compat) -->
+  <!-- ✅ Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet">
+
+  <!-- ✅ Firebase CDN (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
   <script>
-    /* ------- 你的專案設定 ------- */
     const firebaseConfig = {
       apiKey:            "AIzaSyAaNDRralbB3_Ybbivz9E1QrOmk3VMlCN4",
       authDomain:        "jlms-teaching-platform.firebaseapp.com",
@@ -21,7 +24,6 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    /* 監聽登入狀態並處理登出按鈕 */
     window.onload = () => {
       const status  = document.getElementById('status');
       const logoutB = document.getElementById('logoutBtn');
@@ -29,22 +31,50 @@
       firebase.auth().onAuthStateChanged(user => {
         if (user) {
           status.textContent = `👋 Welcome, ${user.email}`;
-          logoutB.style.display = 'inline-block';          // ▶︎ 顯示按鈕
+          logoutB.style.display = 'inline-block';
         } else {
-          location.href = 'login.html';                    // ▶︎ 未登入回到 login
+          location.href = 'login.html';
         }
       });
 
-      /* 登出 */
       logoutB.onclick = () =>
         firebase.auth().signOut().then(() => (location.href = 'login.html'));
     };
   </script>
 
   <style>
-    body { font-family: sans-serif; padding: 2rem; }
-    h1  { margin-top: 0; }
-    #logoutBtn { margin-top: 1rem; }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      padding: 2rem;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    #logoutBtn {
+      margin-top: 1rem;
+    }
+
+    /* ✅ 手機版 RWD 優化 */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      h2 {
+        font-size: 1rem;
+      }
+
+      button {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+      }
+    }
   </style>
 </head>
 
