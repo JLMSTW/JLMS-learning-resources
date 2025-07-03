@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,46 +8,98 @@
   <!-- ✅ Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet">
 
+  <!-- ✅ Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
   <!-- ✅ Firebase CDN (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
-  <!-- ✅ 共用登入驗證守門員 -->
+  <!-- ✅ 登入守門員 -->
   <script src="/assets/js/guard.js"></script>
-
-  <style>
-    body {
-      font-family: 'Noto Sans TC', sans-serif;
-      padding: 2rem;
-    }
-
-    h1 {
-      margin-bottom: 1rem;
-    }
-
-    p {
-      line-height: 1.6;
-    }
-
-    /* ✅ 手機版 RWD */
-    @media (max-width: 768px) {
-      body {
-        padding: 1rem;
-      }
-
-      h1 {
-        font-size: 1.5rem;
-      }
-
-      p {
-        font-size: 1rem;
-      }
-    }
-  </style>
 </head>
+<body class="font-['Noto Sans TC'] bg-gray-50 text-gray-800 p-4">
+  <h1 class="text-2xl font-bold mb-6">Grammaire</h1>
 
-<body>
-  <h1>Grammaire</h1>
-  <p>（這裡可以開始放你的教材內容）</p>
+  <div id="content" class="space-y-4"></div>
+
+  <script>
+    let currentUser = null;
+    firebase.auth().onAuthStateChanged(user => {
+      currentUser = user;
+      loadLessons();
+    });
+
+    function loadLessons() {
+      const apiUrl = 'https://script.google.com/macros/s/AKfycbwWHzQ3l92XertCCDs5CD52FDh4NsGQQYN77USJTS96SLj7k1ARiX2QwoZj6CyZ4KXx8g/exec';
+
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const items = data.filter(item => item['分類Catégorie'] === 'Grammaire');
+          const container = document.getElementById('content');
+          container.innerHTML = '';
+
+          items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = "bg-white rounded-xl shadow-md p-4 hover:shadow-lg transition-all";
+
+            const title = document.createElement('h2');
+            title.className = "text-lg font-semibold mb-2";
+            title.textContent = `${item['名稱Titre']} — Niveau: ${item['程度Niveau']}`;
+
+            const startBtn = document.createElement('button');
+            startBtn.textContent = 'Start';
+            startBtn.className = "mt-2 bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition";
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = "mt-2 space-x-3 hidden";
+
+            if (item['YouTube']) {
+              const yt = document.createElement('a');
+              yt.href = item['YouTube'];
+              yt.textContent = 'YouTube';
+              yt.target = '_blank';
+              yt.className = "text-blue-600 underline hover:text-blue-800";
+              contentDiv.appendChild(yt);
+            }
+
+            if (item['PDF檔案ID (traditionnel)']) {
+              const pdf = document.createElement('a');
+              pdf.href = `https://drive.google.com/file/d/${item['PDF檔案ID (traditionnel)']}/preview`;
+              pdf.textContent = 'PDF (繁體)';
+              pdf.target = '_blank';
+              pdf.className = "text-blue-600 underline hover:text-blue-800";
+              contentDiv.appendChild(pdf);
+            }
+
+            if (item['PDF檔案ID (simplifié)']) {
+              const pdfSim = document.createElement('a');
+              pdfSim.href = `https://drive.google.com/file/d/${item['PDF檔案ID (simplifié)']}/preview`;
+              pdfSim.textContent = 'PDF (简体)';
+              pdfSim.target = '_blank';
+              pdfSim.className = "text-blue-600 underline hover:text-blue-800";
+              contentDiv.appendChild(pdfSim);
+            }
+
+            startBtn.onclick = () => {
+              if (!currentUser) {
+                alert("Please log in or sign up to access this content.");
+                window.location.href = "/login.html";
+                return;
+              }
+              contentDiv.classList.remove('hidden');
+              startBtn.classList.add('hidden');
+            };
+
+            card.appendChild(title);
+            card.appendChild(startBtn);
+            card.appendChild(contentDiv);
+            container.appendChild(card);
+          });
+        })
+        .catch(console.error);
+    }
+  </script>
 </body>
 </html>
