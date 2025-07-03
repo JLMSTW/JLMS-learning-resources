@@ -23,31 +23,46 @@
       measurementId:     "G-DDG3NTYVQS"
     };
     firebase.initializeApp(firebaseConfig);
-
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-
+  
     function cred() {
       return {
-        email:    document.getElementById('email').value.trim(),
+        email: document.getElementById('email').value.trim(),
         password: document.getElementById('password').value
       };
     }
-
+  
     function login() {
       const { email, password } = cred();
       firebase.auth().signInWithEmailAndPassword(email, password)
-        .then(() => location.href = 'index.html')
-        .catch(e => alert('Login failed: ' + e.message));
+        .then((userCredential) => {
+          const user = userCredential.user;
+          if (user.emailVerified) {
+            location.href = 'index.html';
+          } else {
+            alert("請先驗證您的電子郵件再登入！");
+            firebase.auth().signOut();
+          }
+        })
+        .catch(e => alert('登入失敗：' + e.message));
     }
-
+  
     function signup() {
       const { email, password } = cred();
       firebase.auth().createUserWithEmailAndPassword(email, password)
-        .then(() => location.href = 'index.html')
-        .catch(e => alert('Sign-up failed: ' + e.message));
+        .then((userCredential) => {
+          const user = userCredential.user;
+          user.sendEmailVerification().then(() => {
+            alert("驗證信已寄出，請前往信箱確認。完成驗證後再登入。");
+            firebase.auth().signOut().then(() => {
+              window.location.href = "login.html";
+            });
+          });
+        })
+        .catch(e => alert('註冊失敗：' + e.message));
     }
   </script>
-
+  
   <style>
     body {
       font-family: 'Noto Sans TC', sans-serif;
