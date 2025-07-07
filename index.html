@@ -8,83 +8,67 @@
   <!-- ✅ Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet">
 
+  <!-- ✅ Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
   <!-- ✅ Firebase CDN (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
   <script>
     const firebaseConfig = {
-      apiKey:            "AIzaSyAaNDRralbB3_Ybbivz9E1QrOmk3VMlCN4",
-      authDomain:        "jlms-teaching-platform.firebaseapp.com",
-      projectId:         "jlms-teaching-platform",
-      storageBucket:     "jlms-teaching-platform.appspot.com",
+      apiKey: "AIzaSyAaNDRralbB3_Ybbivz9E1QrOmk3VMlCN4",
+      authDomain: "jlms-teaching-platform.firebaseapp.com",
+      projectId: "jlms-teaching-platform",
+      storageBucket: "jlms-teaching-platform.appspot.com",
       messagingSenderId: "193970336189",
-      appId:             "1:193970336189:web:17572a6b9176a984a5a2d4",
-      measurementId:     "G-DDG3NTYVQS"
+      appId: "1:193970336189:web:17572a6b9176a984a5a2d4",
+      measurementId: "G-DDG3NTYVQS"
     };
     firebase.initializeApp(firebaseConfig);
 
     window.onload = () => {
       const status  = document.getElementById('status');
       const logoutB = document.getElementById('logoutBtn');
+      const loginB  = document.getElementById('loginBtn');
 
       firebase.auth().onAuthStateChanged(user => {
         if (user) {
           status.textContent = `👋 Welcome, ${user.email}`;
           logoutB.style.display = 'inline-block';
+          loginB.style.display = 'none';
         } else {
-          location.href = 'login.html';
+          status.textContent = '🔐 Not logged in';
+          logoutB.style.display = 'none';
+          loginB.style.display = 'inline-block';
         }
       });
 
       logoutB.onclick = () =>
-        firebase.auth().signOut().then(() => (location.href = 'login.html'));
+        firebase.auth().signOut().then(() => location.reload());
+      loginB.onclick = () => location.href = 'login.html';
     };
   </script>
-
-  <style>
-    body {
-      font-family: 'Noto Sans TC', sans-serif;
-      padding: 2rem;
-    }
-
-    h1 {
-      margin-top: 0;
-    }
-
-    #logoutBtn {
-      margin-top: 1rem;
-    }
-
-    /* ✅ 手機版 RWD 優化 */
-    @media (max-width: 768px) {
-      body {
-        padding: 1rem;
-      }
-
-      h1 {
-        font-size: 1.5rem;
-      }
-
-      h2 {
-        font-size: 1rem;
-      }
-
-      button {
-        font-size: 1rem;
-        padding: 0.5rem 1rem;
-      }
-    }
-  </style>
 </head>
 
-<body>
-  <h1>JLMS Teaching Platform</h1>
-  <h2 id="status">Checking login status…</h2>
+<body class="font-['Noto Sans TC'] bg-gray-50 text-gray-800 p-4">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">JLMS Teaching Platform</h1>
+    <div>
+      <span id="status" class="mr-4">Checking login status…</span>
+      <button id="loginBtn" class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition">Log in</button>
+      <button id="logoutBtn" class="bg-gray-600 text-white px-4 py-1 rounded hover:bg-gray-700 transition hidden">Log out</button>
+    </div>
+  </div>
 
-  <!-- 🚪 Log-out 按鈕，預設隱藏 -->
-  <button id="logoutBtn" style="display:none">Log out</button>
-
-  <p>This is your student dashboard. (Add more content here!)</p>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- 📦 第一個課程卡片：Free Resources -->
+    <div class="bg-white rounded-xl shadow-md p-4 hover:shadow-lg transition-all">
+      <img src="assets/images/free-resources.jpg" alt="Free Resources" class="rounded-md w-full h-48 object-cover mb-4">
+      <h2 class="text-xl font-semibold mb-1">Free Resources</h2>
+      <p class="text-gray-600 mb-3">JLMS free self-study materials, available anytime.</p>
+      <a href="resources.html" class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">View content</a>
+    </div>
+  </div>
 </body>
 </html>
