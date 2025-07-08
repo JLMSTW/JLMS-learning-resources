@@ -36,27 +36,29 @@
     </div>
   </header>
 
-  <!-- 📌 導覽按鈕 -->
-  <nav class="flex gap-4 mb-4">
-    <a href="resources.html" class="text-blue-600 hover:underline">← Back to course overview</a>
-    <a href="#" id="prevBtn" class="text-blue-600 hover:underline">Previous Lesson</a>
-    <a href="#" id="nextBtn" class="text-blue-600 hover:underline">Next Lesson →</a>
-  </nav>
+  <!-- 📌 導覽按鈕區塊 -->
+  <div class="bg-[#50afaf] text-white rounded-xl p-4 mb-6 flex flex-wrap justify-between items-center">
+    <a href="resources.html" class="hover:underline">← Back to course overview</a>
+    <div class="flex gap-6">
+      <a href="#" id="prevBtn" class="hover:underline">Previous Lesson</a>
+      <a href="#" id="nextBtn" class="hover:underline">Next Lesson →</a>
+    </div>
+  </div>
 
   <!-- 📌 YouTube 影片縮圖預留區 -->
   <div id="youtube-preview" class="mb-6"></div>
 
   <!-- 📌 PDF 區塊 -->
-  <div class="space-y-4">
+  <div class="space-y-6">
     <div id="pdf-tr" class="hidden">
-      <h2 class="font-semibold">📄 PDF (Traditionnel)</h2>
+      <h2 class="font-semibold text-lg mb-2">📄 PDF (Traditionnel)</h2>
       <iframe class="w-full h-96 border rounded" id="iframe-tr" src=""></iframe>
-      <a id="download-tr" href="#" class="text-blue-600 hover:underline" download>Download PDF</a>
+      <a id="download-tr" href="#" class="text-blue-600 hover:underline block mt-1" download>Download PDF</a>
     </div>
     <div id="pdf-sim" class="hidden">
-      <h2 class="font-semibold">📄 PDF (Simplifié)</h2>
+      <h2 class="font-semibold text-lg mb-2">📄 PDF (Simplifié)</h2>
       <iframe class="w-full h-96 border rounded" id="iframe-sim" src=""></iframe>
-      <a id="download-sim" href="#" class="text-blue-600 hover:underline" download>Download PDF</a>
+      <a id="download-sim" href="#" class="text-blue-600 hover:underline block mt-1" download>Download PDF</a>
     </div>
   </div>
 
