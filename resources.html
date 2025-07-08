@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Free Resources | JLMS</title>
 
-  <!-- Tailwind CSS -->
+  <!-- ✅ Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet">
 
-  <!-- Firebase -->
+  <!-- ✅ Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
@@ -40,6 +40,7 @@
   <main id="content"></main>
 
   <script>
+    // ✅ 處理登入狀態切換
     const statusEl = document.getElementById('status');
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -58,6 +59,45 @@
 
     logoutBtn.onclick = () => firebase.auth().signOut().then(() => location.reload());
     loginBtn.onclick = () => location.href = 'login.html';
+
+    // ✅ 讀取 Google Sheet JSON 資料並顯示模組分類與列表
+    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbztppbQ0vQuen9deXXGp99yeWrMsPHYCQn_MKVYl-1WL9AS5Zg7nlVyQrCGa8yxWwnBvg/exec";
+
+    fetch(SHEET_API_URL)
+      .then(res => res.json())
+      .then(data => {
+        // 依分類 Catégorie 分組
+        const grouped = {};
+        data.forEach(row => {
+          const category = row["分類Catégorie"] || "Autres";
+          if (!grouped[category]) grouped[category] = [];
+          grouped[category].push(row);
+        });
+
+        // 插入 HTML
+        const container = document.getElementById("content");
+        container.innerHTML = "";
+
+        Object.entries(grouped).forEach(([category, items]) => {
+          const section = document.createElement("section");
+          section.className = "mb-8";
+          section.innerHTML = `
+            <h2 class="text-xl font-semibold mb-2">${category}</h2>
+            <div class="bg-white rounded-lg shadow divide-y">
+              ${items.map(item => `
+                <div class="flex justify-between items-center p-4 hover:bg-gray-50">
+                  <div>
+                    <div class="font-medium">${item["名稱Titre"]}</div>
+                    <div class="text-sm text-gray-500">${item["程度Niveau"] || ""}</div>
+                  </div>
+                  <button class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition">Start</button>
+                </div>
+              `).join("")}
+            </div>
+          `;
+          container.appendChild(section);
+        });
+      });
   </script>
 </body>
 </html>
