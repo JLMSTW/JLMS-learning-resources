@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit | JLMS</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAaNDRralbB3_Ybbivz9E1QrOmk3VMlCN4",
+      authDomain: "jlms-teaching-platform.firebaseapp.com",
+      projectId: "jlms-teaching-platform",
+      storageBucket: "jlms-teaching-platform.appspot.com",
+      messagingSenderId: "193970336189",
+      appId: "1:193970336189:web:17572a6b9176a984a5a2d4",
+      measurementId: "G-DDG3NTYVQS"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-['Noto Sans TC'] p-4">
+  <header class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold" id="unit-title">Loading...</h1>
+    <div>
+      <span id="status" class="mr-4">Checking login...</span>
+      <button id="loginBtn" class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition">Login</button>
+      <button id="logoutBtn" class="bg-gray-600 text-white px-4 py-1 rounded hover:bg-gray-700 transition hidden">Logout</button>
+    </div>
+  </header>
+
+  <!-- 📌 導覽按鈕 -->
+  <nav class="flex gap-4 mb-4">
+    <a href="resources.html" class="text-blue-600 hover:underline">← Back to course overview</a>
+    <a href="#" id="prevBtn" class="text-blue-600 hover:underline">Previous Lesson</a>
+    <a href="#" id="nextBtn" class="text-blue-600 hover:underline">Next Lesson →</a>
+  </nav>
+
+  <!-- 📌 YouTube 影片縮圖預留區 -->
+  <div id="youtube-preview" class="mb-6"></div>
+
+  <!-- 📌 PDF 區塊 -->
+  <div class="space-y-4">
+    <div id="pdf-tr" class="hidden">
+      <h2 class="font-semibold">📄 PDF (Traditionnel)</h2>
+      <iframe class="w-full h-96 border rounded" id="iframe-tr" src=""></iframe>
+      <a id="download-tr" href="#" class="text-blue-600 hover:underline" download>Download PDF</a>
+    </div>
+    <div id="pdf-sim" class="hidden">
+      <h2 class="font-semibold">📄 PDF (Simplifié)</h2>
+      <iframe class="w-full h-96 border rounded" id="iframe-sim" src=""></iframe>
+      <a id="download-sim" href="#" class="text-blue-600 hover:underline" download>Download PDF</a>
+    </div>
+  </div>
+
+  <script>
+    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbztppbQ0vQuen9deXXGp99yeWrMsPHYCQn_MKVYl-1WL9AS5Zg7nlVyQrCGa8yxWwnBvg/exec";
+
+    const params = new URLSearchParams(window.location.search);
+    const lessonId = params.get("id");
+
+    firebase.auth().onAuthStateChanged(user => {
+      const statusEl = document.getElementById("status");
+      const loginBtn = document.getElementById("loginBtn");
+      const logoutBtn = document.getElementById("logoutBtn");
+
+      if (user) {
+        statusEl.textContent = `👋 Welcome, ${user.email}`;
+        logoutBtn.classList.remove("hidden");
+        loginBtn.classList.add("hidden");
+      } else {
+        statusEl.textContent = "🔐 Not logged in";
+        logoutBtn.classList.add("hidden");
+        loginBtn.classList.remove("hidden");
+      }
+
+      logoutBtn.onclick = () => firebase.auth().signOut().then(() => location.reload());
+      loginBtn.onclick = () => location.href = 'login.html';
+    });
+
+    fetch(SHEET_API_URL)
+      .then(res => res.json())
+      .then(data => {
+        const lesson = data.find(row => row["名稱Titre"] === lessonId);
+        if (!lesson) return;
+
+        document.getElementById("unit-title").textContent = lesson["名稱Titre"] || "Lesson";
+
+        // YouTube
+        if (lesson.YouTube) {
+          const youtube = document.getElementById("youtube-preview");
+          const videoId = lesson.YouTube.split("v=")[1];
+          youtube.innerHTML = `<iframe class="w-full aspect-video rounded" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+        }
+
+        // PDF
+        if (lesson["PDF檔案ID (traditionnel)"]) {
+          document.getElementById("pdf-tr").classList.remove("hidden");
+          const id = lesson["PDF檔案ID (traditionnel)"];
+          document.getElementById("iframe-tr").src = `https://drive.google.com/file/d/${id}/preview`;
+          document.getElementById("download-tr").href = `https://drive.google.com/uc?export=download&id=${id}`;
+        }
+        if (lesson["PDF檔案ID (simplifié)"]) {
+          document.getElementById("pdf-sim").classList.remove("hidden");
+          const id = lesson["PDF檔案ID (simplifié)"];
+          document.getElementById("iframe-sim").src = `https://drive.google.com/file/d/${id}/preview`;
+          document.getElementById("download-sim").href = `https://drive.google.com/uc?export=download&id=${id}`;
+        }
+      });
+  </script>
+</body>
+</html>
