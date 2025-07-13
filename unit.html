@@ -64,7 +64,6 @@
 
   <script>
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbztppbQ0vQuen9deXXGp99yeWrMsPHYCQn_MKVYl-1WL9AS5Zg7nlVyQrCGa8yxWwnBvg/exec";
-
     const params = new URLSearchParams(window.location.search);
     const lessonId = params.get("id");
 
@@ -84,34 +83,36 @@
       }
 
       logoutBtn.onclick = () => firebase.auth().signOut().then(() => location.reload());
-      loginBtn.onclick = () => location.href = 'login.html';
+      loginBtn.onclick = () => location.href = "login.html";
     });
 
     fetch(SHEET_API_URL)
       .then(res => res.json())
       .then(data => {
-        const lesson = data.find(row => row["名稱Titre"] === lessonId);
+        const lesson = data.find(row => row["單元ID"] === lessonId);
         if (!lesson) return;
 
         document.getElementById("unit-title").textContent = lesson["名稱Titre"] || "Lesson";
 
-        // YouTube
+        // YouTube 處理
         if (lesson.YouTube) {
-          const youtube = document.getElementById("youtube-preview");
-          const videoId = lesson.YouTube.split("v=")[1];
-          youtube.innerHTML = `<iframe class="w-full aspect-video rounded" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+          const videoId = lesson.YouTube.split("v=")[1]?.split("&")[0]; // 安全處理 query string
+          document.getElementById("youtube-preview").innerHTML = `
+            <iframe class="w-full aspect-video rounded" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
         }
 
-        // PDF
+        // PDF - 繁體
         if (lesson["PDF檔案ID (traditionnel)"]) {
-          document.getElementById("pdf-tr").classList.remove("hidden");
           const id = lesson["PDF檔案ID (traditionnel)"];
+          document.getElementById("pdf-tr").classList.remove("hidden");
           document.getElementById("iframe-tr").src = `https://drive.google.com/file/d/${id}/preview`;
           document.getElementById("download-tr").href = `https://drive.google.com/uc?export=download&id=${id}`;
         }
+
+        // PDF - 簡體
         if (lesson["PDF檔案ID (simplifié)"]) {
-          document.getElementById("pdf-sim").classList.remove("hidden");
           const id = lesson["PDF檔案ID (simplifié)"];
+          document.getElementById("pdf-sim").classList.remove("hidden");
           document.getElementById("iframe-sim").src = `https://drive.google.com/file/d/${id}/preview`;
           document.getElementById("download-sim").href = `https://drive.google.com/uc?export=download&id=${id}`;
         }
