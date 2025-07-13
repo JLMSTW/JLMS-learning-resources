@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Free Resources | JLMS</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet"/>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -49,28 +49,27 @@
   <main id="content"></main>
 
   <script>
-    const statusEl = document.getElementById('status');
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
+    const statusEl = document.getElementById("status");
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
 
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         statusEl.textContent = `👋 Welcome, ${user.email}`;
-        logoutBtn.classList.remove('hidden');
-        loginBtn.classList.add('hidden');
+        logoutBtn.classList.remove("hidden");
+        loginBtn.classList.add("hidden");
       } else {
-        statusEl.textContent = '🔐 Not logged in';
-        logoutBtn.classList.add('hidden');
-        loginBtn.classList.remove('hidden');
+        statusEl.textContent = "🔐 Not logged in";
+        logoutBtn.classList.add("hidden");
+        loginBtn.classList.remove("hidden");
       }
     });
 
     logoutBtn.onclick = () => firebase.auth().signOut().then(() => location.reload());
-    loginBtn.onclick = () => location.href = 'login.html';
+    loginBtn.onclick = () => location.href = "login.html";
 
     // ===== 模組清單功能區塊 =====
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbztppbQ0vQuen9deXXGp99yeWrMsPHYCQn_MKVYl-1WL9AS5Zg7nlVyQrCGa8yxWwnBvg/exec";
-
     let allData = [];
 
     fetch(SHEET_API_URL)
@@ -85,8 +84,8 @@
       const categories = [...new Set(data.map(d => d["分類Catégorie"]).filter(Boolean))];
       const levels = [...new Set(data.map(d => d["程度Niveau"]).filter(Boolean))];
 
-      const catSelect = document.getElementById('categoryFilter');
-      const levelSelect = document.getElementById('levelFilter');
+      const catSelect = document.getElementById("categoryFilter");
+      const levelSelect = document.getElementById("levelFilter");
 
       catSelect.innerHTML = '<option value="">Toutes les catégories</option>' + categories.map(c => `<option value="${c}">${c}</option>`).join("");
       levelSelect.innerHTML = '<option value="">Tous les niveaux</option>' + levels.map(l => `<option value="${l}">${l}</option>`).join("");
@@ -124,7 +123,7 @@
                   <div class="font-medium">${item["名稱Titre"]}</div>
                   <div class="text-sm text-gray-500">${item["程度Niveau"] || ""}</div>
                 </div>
-                <button class="bg-[#5066af] text-white px-4 py-1 rounded hover:opacity-90 transition">Start</button>
+                <a href="unit.html?id=${encodeURIComponent(item["單元ID"])}" class="bg-[#5066af] text-white px-4 py-1 rounded hover:opacity-90 transition">Start</a>
               </div>
             `).join("")}
           </div>
