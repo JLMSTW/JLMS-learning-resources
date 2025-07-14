@@ -36,7 +36,7 @@
     </div>
   </header>
 
-  <!-- 📌 導覽按鈕區塊 -->
+  <!-- 📌 導覽按鈕 -->
   <div class="bg-[#50afaf] text-white rounded-xl p-4 mb-6 flex flex-wrap justify-between items-center">
     <a href="resources.html" class="hover:underline">← Back to course overview</a>
     <div class="flex gap-6">
@@ -45,9 +45,9 @@
     </div>
   </div>
 
-  <!-- 📌 YouTube 影片縮圖預留區（置中 + 限寬） -->
+  <!-- 📌 YouTube 區塊：限制寬度 + aspect-ratio -->
   <div class="flex justify-center mb-6">
-    <div id="youtube-preview" class="w-full max-w-[768px]"></div>
+    <div id="youtube-preview" class="w-full max-w-[640px] aspect-video mx-auto"></div>
   </div>
 
   <!-- 📌 PDF 區塊 -->
@@ -69,7 +69,7 @@
     const params = new URLSearchParams(window.location.search);
     const lessonId = params.get("id");
 
-    // ✅ 支援 youtu.be 與標準 YouTube 網址
+    // YouTube ID 擷取工具
     function extractYouTubeId(url) {
       try {
         const yt = new URL(url);
@@ -84,6 +84,7 @@
       }
     }
 
+    // 登入狀態處理
     firebase.auth().onAuthStateChanged(user => {
       const statusEl = document.getElementById("status");
       const loginBtn = document.getElementById("loginBtn");
@@ -103,6 +104,7 @@
       loginBtn.onclick = () => location.href = "login.html";
     });
 
+    // 載入單元內容
     fetch(SHEET_API_URL)
       .then(res => res.json())
       .then(data => {
@@ -111,16 +113,18 @@
 
         document.getElementById("unit-title").textContent = lesson["名稱Titre"] || "Lesson";
 
-        // ✅ 顯示 YouTube 影片
+        // 嵌入 YouTube
         if (lesson.YouTube) {
           const videoId = extractYouTubeId(lesson.YouTube);
           if (videoId) {
             document.getElementById("youtube-preview").innerHTML = `
-              <iframe class="w-full aspect-video rounded" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+              <iframe class="w-full h-full rounded" 
+                      src="https://www.youtube.com/embed/${videoId}" 
+                      frameborder="0" allowfullscreen></iframe>`;
           }
         }
 
-        // ✅ PDF - 繁體
+        // PDF（繁體）
         if (lesson["PDF檔案ID (traditionnel)"]) {
           const id = lesson["PDF檔案ID (traditionnel)"];
           document.getElementById("pdf-tr").classList.remove("hidden");
@@ -128,7 +132,7 @@
           document.getElementById("download-tr").href = `https://drive.google.com/uc?export=download&id=${id}`;
         }
 
-        // ✅ PDF - 簡體
+        // PDF（簡體）
         if (lesson["PDF檔案ID (simplifié)"]) {
           const id = lesson["PDF檔案ID (simplifié)"];
           document.getElementById("pdf-sim").classList.remove("hidden");
