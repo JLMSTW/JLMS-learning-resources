@@ -67,6 +67,21 @@
     const params = new URLSearchParams(window.location.search);
     const lessonId = params.get("id");
 
+    // 🔧 YouTube ID 解析函式（支援 youtu.be 和標準格式）
+    function extractYouTubeId(url) {
+      try {
+        const yt = new URL(url);
+        if (yt.hostname.includes("youtu.be")) {
+          return yt.pathname.slice(1);
+        }
+        if (yt.searchParams.get("v")) {
+          return yt.searchParams.get("v");
+        }
+      } catch (e) {
+        return null;
+      }
+    }
+
     firebase.auth().onAuthStateChanged(user => {
       const statusEl = document.getElementById("status");
       const loginBtn = document.getElementById("loginBtn");
@@ -94,14 +109,16 @@
 
         document.getElementById("unit-title").textContent = lesson["名稱Titre"] || "Lesson";
 
-        // YouTube 處理
+        // ✅ YouTube
         if (lesson.YouTube) {
-          const videoId = lesson.YouTube.split("v=")[1]?.split("&")[0]; // 安全處理 query string
-          document.getElementById("youtube-preview").innerHTML = `
-            <iframe class="w-full aspect-video rounded" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+          const videoId = extractYouTubeId(lesson.YouTube);
+          if (videoId) {
+            document.getElementById("youtube-preview").innerHTML = `
+              <iframe class="w-full aspect-video rounded" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+          }
         }
 
-        // PDF - 繁體
+        // ✅ PDF - 繁體
         if (lesson["PDF檔案ID (traditionnel)"]) {
           const id = lesson["PDF檔案ID (traditionnel)"];
           document.getElementById("pdf-tr").classList.remove("hidden");
@@ -109,7 +126,7 @@
           document.getElementById("download-tr").href = `https://drive.google.com/uc?export=download&id=${id}`;
         }
 
-        // PDF - 簡體
+        // ✅ PDF - 簡體
         if (lesson["PDF檔案ID (simplifié)"]) {
           const id = lesson["PDF檔案ID (simplifié)"];
           document.getElementById("pdf-sim").classList.remove("hidden");
