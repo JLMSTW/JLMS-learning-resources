@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Unit | JLMS</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet" />
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -45,8 +45,10 @@
     </div>
   </div>
 
-  <!-- 📌 YouTube 影片縮圖預留區 -->
-  <div id="youtube-preview" class="mb-6"></div>
+  <!-- 📌 YouTube 影片縮圖預留區（置中 + 限寬） -->
+  <div class="flex justify-center mb-6">
+    <div id="youtube-preview" class="w-full max-w-[768px]"></div>
+  </div>
 
   <!-- 📌 PDF 區塊 -->
   <div class="space-y-6">
@@ -67,7 +69,7 @@
     const params = new URLSearchParams(window.location.search);
     const lessonId = params.get("id");
 
-    // 🔧 YouTube ID 解析函式（支援 youtu.be 和標準格式）
+    // ✅ 支援 youtu.be 與標準 YouTube 網址
     function extractYouTubeId(url) {
       try {
         const yt = new URL(url);
@@ -109,7 +111,7 @@
 
         document.getElementById("unit-title").textContent = lesson["名稱Titre"] || "Lesson";
 
-        // ✅ YouTube
+        // ✅ 顯示 YouTube 影片
         if (lesson.YouTube) {
           const videoId = extractYouTubeId(lesson.YouTube);
           if (videoId) {
