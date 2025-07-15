@@ -36,48 +36,56 @@
     </div>
   </header>
 
-  <!-- 📌 導覽按鈕 -->
-  <div class="bg-[#50afaf] text-white rounded-xl p-4 mb-6 flex flex-wrap justify-between items-center">
-    <a href="resources.html" class="hover:underline">← Back to course overview</a>
-    <div class="flex gap-6">
-      <a href="#" id="prevBtn" class="hover:underline">Previous Lesson</a>
-      <a href="#" id="nextBtn" class="hover:underline">Next Lesson →</a>
-    </div>
-  </div>
+  <div class="md:flex gap-6">
+    <!-- Sidebar -->
+    <aside class="md:w-1/4 mb-6 md:mb-0">
+      <div id="unit-list" class="space-y-2"></div>
+    </aside>
 
-  <!-- 📌 YouTube 區塊 -->
-  <div class="flex justify-center mb-6">
-    <div id="youtube-preview" class="w-full max-w-[640px] aspect-video mx-auto"></div>
-  </div>
+    <!-- Main Content -->
+    <main class="md:w-3/4" id="unit-content">
+      <!-- Navigation -->
+      <div class="bg-[#50afaf] text-white rounded-xl p-4 mb-6 flex flex-wrap justify-between items-center">
+        <a href="resources.html" class="hover:underline">← Back to course overview</a>
+        <div class="flex gap-6">
+          <a href="#" id="prevBtn" class="hover:underline">Previous Lesson</a>
+          <a href="#" id="nextBtn" class="hover:underline">Next Lesson →</a>
+        </div>
+      </div>
 
-  <!-- 📌 PDF 區塊（已調整寬度與高度） -->
-  <div class="space-y-6">
-    <div id="pdf-tr" class="hidden max-w-[768px] mx-auto">
-      <h2 class="font-semibold text-lg mb-2">📄 PDF (Traditionnel)</h2>
-      <iframe class="w-full h-[640px] border rounded" id="iframe-tr" src=""></iframe>
-      <a id="download-tr" href="#" class="text-blue-600 hover:underline block mt-1" download>Download PDF</a>
-    </div>
-    <div id="pdf-sim" class="hidden max-w-[768px] mx-auto">
-      <h2 class="font-semibold text-lg mb-2">📄 PDF (Simplifié)</h2>
-      <iframe class="w-full h-[640px] border rounded" id="iframe-sim" src=""></iframe>
-      <a id="download-sim" href="#" class="text-blue-600 hover:underline block mt-1" download>Download PDF</a>
-    </div>
+      <!-- YouTube -->
+      <div class="flex justify-center mb-6">
+        <div id="youtube-preview" class="w-full max-w-[640px] aspect-video mx-auto"></div>
+      </div>
+
+      <!-- PDFs -->
+      <div class="space-y-6">
+        <div id="pdf-tr" class="hidden max-w-[768px] mx-auto">
+          <h2 class="font-semibold text-lg mb-2">📄 PDF (Traditionnel)</h2>
+          <iframe class="w-full h-[640px] border rounded" id="iframe-tr" src=""></iframe>
+          <a id="download-tr" href="#" class="text-blue-600 hover:underline block mt-1" download>Download PDF</a>
+        </div>
+        <div id="pdf-sim" class="hidden max-w-[768px] mx-auto">
+          <h2 class="font-semibold text-lg mb-2">📄 PDF (Simplifié)</h2>
+          <iframe class="w-full h-[640px] border rounded" id="iframe-sim" src=""></iframe>
+          <a id="download-sim" href="#" class="text-blue-600 hover:underline block mt-1" download>Download PDF</a>
+        </div>
+      </div>
+    </main>
   </div>
 
   <script>
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbztppbQ0vQuen9deXXGp99yeWrMsPHYCQn_MKVYl-1WL9AS5Zg7nlVyQrCGa8yxWwnBvg/exec";
     const params = new URLSearchParams(window.location.search);
     const lessonId = params.get("id");
+    const cat = params.get("cat");
+    const level = params.get("level");
 
     function extractYouTubeId(url) {
       try {
         const yt = new URL(url);
-        if (yt.hostname.includes("youtu.be")) {
-          return yt.pathname.slice(1);
-        }
-        if (yt.searchParams.get("v")) {
-          return yt.searchParams.get("v");
-        }
+        if (yt.hostname.includes("youtu.be")) return yt.pathname.slice(1);
+        if (yt.searchParams.get("v")) return yt.searchParams.get("v");
       } catch (e) {
         return null;
       }
@@ -105,13 +113,33 @@
     fetch(SHEET_API_URL)
       .then(res => res.json())
       .then(data => {
-        const lesson = data.find(row => row["單元ID"] === lessonId);
-        if (!lesson) return;
+        const filtered = data.filter(row => {
+          return (!cat || row["\u5206\u985eCat\u00e9gorie"] === cat) &&
+                 (!level || row["\u7a0b\u5ea6Niveau"] === level);
+        });
 
-        document.getElementById("unit-title").textContent = lesson["名稱Titre"] || "Lesson";
+        const currentLesson = filtered.find(row => row["\u55ae\u5143ID"] === lessonId);
+        if (!currentLesson) return;
 
-        if (lesson.YouTube) {
-          const videoId = extractYouTubeId(lesson.YouTube);
+        // Sidebar rendering
+        const listEl = document.getElementById("unit-list");
+        filtered.forEach(row => {
+          const isActive = row["\u55ae\u5143ID"] === lessonId;
+          const div = document.createElement("div");
+          div.className = `p-3 rounded cursor-pointer ${isActive ? 'bg-blue-100 font-semibold' : 'hover:bg-gray-100'}`;
+          div.textContent = row["\u540d\u7a31Titre"];
+          div.onclick = () => {
+            location.href = `unit.html?id=${encodeURIComponent(row["\u55ae\u5143ID"])}&cat=${encodeURIComponent(cat)}&level=${encodeURIComponent(level)}`;
+          };
+          listEl.appendChild(div);
+        });
+
+        // Title
+        document.getElementById("unit-title").textContent = currentLesson["\u540d\u7a31Titre"] || "Lesson";
+
+        // YouTube
+        if (currentLesson.YouTube) {
+          const videoId = extractYouTubeId(currentLesson.YouTube);
           if (videoId) {
             document.getElementById("youtube-preview").innerHTML = `
               <iframe class="w-full h-full rounded" 
@@ -120,15 +148,16 @@
           }
         }
 
-        if (lesson["PDF檔案ID (traditionnel)"]) {
-          const id = lesson["PDF檔案ID (traditionnel)"];
+        // PDF
+        if (currentLesson["PDF\u6a94\u6848ID (traditionnel)"]) {
+          const id = currentLesson["PDF\u6a94\u6848ID (traditionnel)"];
           document.getElementById("pdf-tr").classList.remove("hidden");
           document.getElementById("iframe-tr").src = `https://drive.google.com/file/d/${id}/preview`;
           document.getElementById("download-tr").href = `https://drive.google.com/uc?export=download&id=${id}`;
         }
 
-        if (lesson["PDF檔案ID (simplifié)"]) {
-          const id = lesson["PDF檔案ID (simplifié)"];
+        if (currentLesson["PDF\u6a94\u6848ID (simplifi\u00e9)"]) {
+          const id = currentLesson["PDF\u6a94\u6848ID (simplifi\u00e9)"];
           document.getElementById("pdf-sim").classList.remove("hidden");
           document.getElementById("iframe-sim").src = `https://drive.google.com/file/d/${id}/preview`;
           document.getElementById("download-sim").href = `https://drive.google.com/uc?export=download&id=${id}`;
