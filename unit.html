@@ -113,34 +113,39 @@
     fetch(SHEET_API_URL)
       .then(res => res.json())
       .then(data => {
+        const titleKey = Object.keys(data[0]).find(k => k.includes("Titre"));
+        const idKey = Object.keys(data[0]).find(k => k.includes("ID"));
+        const catKey = Object.keys(data[0]).find(k => k.includes("Cat"));
+        const levelKey = Object.keys(data[0]).find(k => k.includes("Niveau"));
+
         const filtered = data.filter(row => {
-          return (!cat || row["分類Catégorie"]?.toLowerCase() === cat.toLowerCase()) &&
-                 (!level || row["程度Niveau"]?.toLowerCase() === level.toLowerCase());
+          return (!cat || row[catKey]?.toLowerCase() === cat.toLowerCase()) &&
+                 (!level || row[levelKey]?.toLowerCase() === level.toLowerCase());
         });
 
-        const currentLesson = filtered.find(row => row["單元ID"] === lessonId);
+        const currentLesson = filtered.find(row => row[idKey] === lessonId);
         if (!currentLesson) return;
 
         const listEl = document.getElementById("unit-list");
         filtered.forEach(row => {
-          const isActive = row["單元ID"] === lessonId;
+          const isActive = row[idKey] === lessonId;
           const div = document.createElement("div");
           div.className = `p-3 rounded cursor-pointer ${isActive ? 'bg-[#95CACA] font-semibold' : 'hover:bg-gray-100'}`;
-          div.textContent = row["名稱Titre"];
+          div.textContent = row[titleKey];
           div.onclick = () => {
-            location.href = `unit.html?id=${encodeURIComponent(row["單元ID"])}&cat=${encodeURIComponent(cat || '')}&level=${encodeURIComponent(level || '')}`;
+            location.href = `unit.html?id=${encodeURIComponent(row[idKey])}&cat=${encodeURIComponent(cat || '')}&level=${encodeURIComponent(level || '')}`;
           };
           listEl.appendChild(div);
         });
 
-        document.getElementById("unit-title").textContent = currentLesson["名稱Titre"] || "Lesson";
+        document.getElementById("unit-title").textContent = currentLesson[titleKey] || "Lesson";
 
         if (currentLesson.YouTube) {
           const videoId = extractYouTubeId(currentLesson.YouTube);
           if (videoId) {
             document.getElementById("youtube-preview").innerHTML = `
-              <iframe class="w-full h-full rounded" 
-                      src="https://www.youtube.com/embed/${videoId}" 
+              <iframe class="w-full h-full rounded"
+                      src="https://www.youtube.com/embed/${videoId}"
                       frameborder="0" allowfullscreen></iframe>`;
           }
         }
