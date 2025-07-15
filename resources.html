@@ -68,7 +68,6 @@
     logoutBtn.onclick = () => firebase.auth().signOut().then(() => location.reload());
     loginBtn.onclick = () => location.href = "login.html";
 
-    // ===== 模組清單功能區塊 =====
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbztppbQ0vQuen9deXXGp99yeWrMsPHYCQn_MKVYl-1WL9AS5Zg7nlVyQrCGa8yxWwnBvg/exec";
     let allData = [];
 
@@ -96,11 +95,11 @@
         const filtered = allData.filter(row => {
           return (!catVal || row["分類Catégorie"] === catVal) && (!levelVal || row["程度Niveau"] === levelVal);
         });
-        renderContent(filtered);
+        renderContent(filtered, catVal, levelVal);
       };
     }
 
-    function renderContent(data) {
+    function renderContent(data, cat = "", level = "") {
       const grouped = {};
       data.forEach(row => {
         const category = row["分類Catégorie"] || "Autres";
@@ -123,7 +122,8 @@
                   <div class="font-medium">${item["名稱Titre"]}</div>
                   <div class="text-sm text-gray-500">${item["程度Niveau"] || ""}</div>
                 </div>
-                <a href="unit.html?id=${encodeURIComponent(item["單元ID"])}" class="bg-[#5066af] text-white px-4 py-1 rounded hover:opacity-90 transition">Start</a>
+                <a href="unit.html?id=${encodeURIComponent(item["單元ID"])}&cat=${encodeURIComponent(item["分類Catégorie"] || "")}&level=${encodeURIComponent(item["程度Niveau"] || ""}"
+                   class="bg-[#5066af] text-white px-4 py-1 rounded hover:opacity-90 transition">Start</a>
               </div>
             `).join("")}
           </div>
