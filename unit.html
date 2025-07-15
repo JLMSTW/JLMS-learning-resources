@@ -121,8 +121,16 @@
         const filtered = data.filter(row => {
           const rowCat = (row[catKey] || "").toLowerCase();
           const rowLevel = (row[levelKey] || "").toLowerCase();
-          return (!cat || rowCat === cat.toLowerCase()) &&
-                 (!level || rowLevel === level.toLowerCase());
+
+          if (cat && !level) {
+            return rowCat === cat.toLowerCase();
+          } else if (!cat && level) {
+            return rowLevel === level.toLowerCase();
+          } else if (cat && level) {
+            return rowCat === cat.toLowerCase() && rowLevel === level.toLowerCase();
+          } else {
+            return true;
+          }
         });
 
         const currentLesson = filtered.find(row => row[idKey] === lessonId);
