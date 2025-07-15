@@ -119,8 +119,10 @@
         const levelKey = Object.keys(data[0]).find(k => k.includes("Niveau"));
 
         const filtered = data.filter(row => {
-          return (!cat || row[catKey]?.toLowerCase() === cat.toLowerCase()) &&
-                 (!level || row[levelKey]?.toLowerCase() === level.toLowerCase());
+          const rowCat = (row[catKey] || "").toLowerCase();
+          const rowLevel = (row[levelKey] || "").toLowerCase();
+          return (!cat || rowCat === cat.toLowerCase()) &&
+                 (!level || rowLevel === level.toLowerCase());
         });
 
         const currentLesson = filtered.find(row => row[idKey] === lessonId);
