@@ -45,21 +45,21 @@
     </div>
   </div>
 
-  <!-- 📌 YouTube 區塊：限制寬度 + aspect-ratio -->
+  <!-- 📌 YouTube 區塊 -->
   <div class="flex justify-center mb-6">
     <div id="youtube-preview" class="w-full max-w-[640px] aspect-video mx-auto"></div>
   </div>
 
-  <!-- 📌 PDF 區塊 -->
+  <!-- 📌 PDF 區塊（已調整寬度與高度） -->
   <div class="space-y-6">
-    <div id="pdf-tr" class="hidden">
+    <div id="pdf-tr" class="hidden max-w-[768px] mx-auto">
       <h2 class="font-semibold text-lg mb-2">📄 PDF (Traditionnel)</h2>
-      <iframe class="w-full h-96 border rounded" id="iframe-tr" src=""></iframe>
+      <iframe class="w-full h-[640px] border rounded" id="iframe-tr" src=""></iframe>
       <a id="download-tr" href="#" class="text-blue-600 hover:underline block mt-1" download>Download PDF</a>
     </div>
-    <div id="pdf-sim" class="hidden">
+    <div id="pdf-sim" class="hidden max-w-[768px] mx-auto">
       <h2 class="font-semibold text-lg mb-2">📄 PDF (Simplifié)</h2>
-      <iframe class="w-full h-96 border rounded" id="iframe-sim" src=""></iframe>
+      <iframe class="w-full h-[640px] border rounded" id="iframe-sim" src=""></iframe>
       <a id="download-sim" href="#" class="text-blue-600 hover:underline block mt-1" download>Download PDF</a>
     </div>
   </div>
@@ -69,7 +69,6 @@
     const params = new URLSearchParams(window.location.search);
     const lessonId = params.get("id");
 
-    // YouTube ID 擷取工具
     function extractYouTubeId(url) {
       try {
         const yt = new URL(url);
@@ -84,7 +83,6 @@
       }
     }
 
-    // 登入狀態處理
     firebase.auth().onAuthStateChanged(user => {
       const statusEl = document.getElementById("status");
       const loginBtn = document.getElementById("loginBtn");
@@ -104,7 +102,6 @@
       loginBtn.onclick = () => location.href = "login.html";
     });
 
-    // 載入單元內容
     fetch(SHEET_API_URL)
       .then(res => res.json())
       .then(data => {
@@ -113,7 +110,6 @@
 
         document.getElementById("unit-title").textContent = lesson["名稱Titre"] || "Lesson";
 
-        // 嵌入 YouTube
         if (lesson.YouTube) {
           const videoId = extractYouTubeId(lesson.YouTube);
           if (videoId) {
@@ -124,7 +120,6 @@
           }
         }
 
-        // PDF（繁體）
         if (lesson["PDF檔案ID (traditionnel)"]) {
           const id = lesson["PDF檔案ID (traditionnel)"];
           document.getElementById("pdf-tr").classList.remove("hidden");
@@ -132,7 +127,6 @@
           document.getElementById("download-tr").href = `https://drive.google.com/uc?export=download&id=${id}`;
         }
 
-        // PDF（簡體）
         if (lesson["PDF檔案ID (simplifié)"]) {
           const id = lesson["PDF檔案ID (simplifié)"];
           document.getElementById("pdf-sim").classList.remove("hidden");
