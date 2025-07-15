@@ -3,16 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Free Resources | JLMS</title>
+  <title>Unit | JLMS</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet" />
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAaNDRralbB3_Ybbivz9E1QrOmk3VMlCN4",
@@ -29,7 +28,7 @@
 
 <body class="bg-gray-50 text-gray-800 font-['Noto Sans TC'] p-4">
   <header class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Free Resources</h1>
+    <h1 class="text-2xl font-bold" id="unit-title">Loading...</h1>
     <div>
       <span id="status" class="mr-4">Checking login...</span>
       <button id="loginBtn" class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition">Login</button>
@@ -37,23 +36,66 @@
     </div>
   </header>
 
-  <section class="mb-6 flex gap-4">
-    <label>Catégorie:
-      <select id="categoryFilter" class="border rounded p-1"></select>
-    </label>
-    <label>Niveau:
-      <select id="levelFilter" class="border rounded p-1"></select>
-    </label>
-  </section>
+  <div class="md:flex gap-6">
+    <!-- Sidebar -->
+    <aside class="md:w-1/4 mb-6 md:mb-0">
+      <div id="unit-list" class="space-y-2"></div>
+    </aside>
 
-  <main id="content"></main>
+    <!-- Main Content -->
+    <main class="md:w-3/4" id="unit-content">
+      <!-- Navigation -->
+      <div class="bg-[#50afaf] text-white rounded-xl p-4 mb-6 flex flex-wrap justify-between items-center">
+        <a href="resources.html" class="hover:underline">← Back to course overview</a>
+        <div class="flex gap-6">
+          <a href="#" id="prevBtn" class="hover:underline">Previous Lesson</a>
+          <a href="#" id="nextBtn" class="hover:underline">Next Lesson →</a>
+        </div>
+      </div>
+
+      <!-- YouTube -->
+      <div class="flex justify-center mb-6">
+        <div id="youtube-preview" class="w-full max-w-[640px] aspect-video mx-auto"></div>
+      </div>
+
+      <!-- PDFs -->
+      <div class="space-y-6">
+        <div id="pdf-tr" class="hidden max-w-[768px] mx-auto">
+          <h2 class="font-semibold text-lg mb-2">📄 PDF (Traditionnel)</h2>
+          <iframe class="w-full h-[640px] border rounded" id="iframe-tr" src=""></iframe>
+          <a id="download-tr" href="#" class="text-blue-600 hover:underline block mt-1" download>Download PDF</a>
+        </div>
+        <div id="pdf-sim" class="hidden max-w-[768px] mx-auto">
+          <h2 class="font-semibold text-lg mb-2">📄 PDF (Simplifié)</h2>
+          <iframe class="w-full h-[640px] border rounded" id="iframe-sim" src=""></iframe>
+          <a id="download-sim" href="#" class="text-blue-600 hover:underline block mt-1" download>Download PDF</a>
+        </div>
+      </div>
+    </main>
+  </div>
 
   <script>
-    const statusEl = document.getElementById("status");
-    const loginBtn = document.getElementById("loginBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
+    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbztppbQ0vQuen9deXXGp99yeWrMsPHYCQn_MKVYl-1WL9AS5Zg7nlVyQrCGa8yxWwnBvg/exec";
+    const params = new URLSearchParams(window.location.search);
+    const lessonId = params.get("id");
+    const cat = params.get("cat");
+    const level = params.get("level");
+
+    function extractYouTubeId(url) {
+      try {
+        const yt = new URL(url);
+        if (yt.hostname.includes("youtu.be")) return yt.pathname.slice(1);
+        if (yt.searchParams.get("v")) return yt.searchParams.get("v");
+      } catch (e) {
+        return null;
+      }
+    }
 
     firebase.auth().onAuthStateChanged(user => {
+      const statusEl = document.getElementById("status");
+      const loginBtn = document.getElementById("loginBtn");
+      const logoutBtn = document.getElementById("logoutBtn");
+
       if (user) {
         statusEl.textContent = `👋 Welcome, ${user.email}`;
         logoutBtn.classList.remove("hidden");
@@ -63,74 +105,66 @@
         logoutBtn.classList.add("hidden");
         loginBtn.classList.remove("hidden");
       }
+
+      logoutBtn.onclick = () => firebase.auth().signOut().then(() => location.reload());
+      loginBtn.onclick = () => location.href = "login.html";
     });
-
-    logoutBtn.onclick = () => firebase.auth().signOut().then(() => location.reload());
-    loginBtn.onclick = () => location.href = "login.html";
-
-    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbztppbQ0vQuen9deXXGp99yeWrMsPHYCQn_MKVYl-1WL9AS5Zg7nlVyQrCGa8yxWwnBvg/exec";
-    let allData = [];
 
     fetch(SHEET_API_URL)
       .then(res => res.json())
       .then(data => {
-        allData = data;
-        renderFilters(data);
-        renderContent(data);
-      });
+        const categoryKey = Object.keys(data[0]).find(k => k.includes("Catégorie"));
+        const levelKey = Object.keys(data[0]).find(k => k.includes("Niveau"));
+        const idKey = Object.keys(data[0]).find(k => k.includes("單元ID"));
+        const titleKey = Object.keys(data[0]).find(k => k.includes("Titre"));
 
-    function renderFilters(data) {
-      const categories = [...new Set(data.map(d => d["分類Catégorie"]).filter(Boolean))];
-      const levels = [...new Set(data.map(d => d["程度Niveau"]).filter(Boolean))];
-
-      const catSelect = document.getElementById("categoryFilter");
-      const levelSelect = document.getElementById("levelFilter");
-
-      catSelect.innerHTML = '<option value="">Toutes les catégories</option>' + categories.map(c => `<option value="${c}">${c}</option>`).join("");
-      levelSelect.innerHTML = '<option value="">Tous les niveaux</option>' + levels.map(l => `<option value="${l}">${l}</option>`).join("");
-
-      catSelect.onchange = levelSelect.onchange = () => {
-        const catVal = catSelect.value;
-        const levelVal = levelSelect.value;
-        const filtered = allData.filter(row => {
-          return (!catVal || row["分類Catégorie"] === catVal) && (!levelVal || row["程度Niveau"] === levelVal);
+        const filtered = data.filter(row => {
+          return (!cat || row[categoryKey] === cat) && (!level || row[levelKey] === level);
         });
-        renderContent(filtered, catVal, levelVal);
-      };
-    }
 
-    function renderContent(data, cat = "", level = "") {
-      const grouped = {};
-      data.forEach(row => {
-        const category = row["分類Catégorie"] || "Autres";
-        if (!grouped[category]) grouped[category] = [];
-        grouped[category].push(row);
+        const currentLesson = filtered.find(row => row[idKey] === lessonId);
+        if (!currentLesson) return;
+
+        // Sidebar rendering
+        const listEl = document.getElementById("unit-list");
+        filtered.forEach(row => {
+          const isActive = row[idKey] === lessonId;
+          const div = document.createElement("div");
+          div.className = `p-3 rounded cursor-pointer ${isActive ? 'bg-[#95CACA] font-semibold' : 'hover:bg-gray-100'}`;
+          div.textContent = row[titleKey];
+          div.onclick = () => {
+            location.href = `unit.html?id=${encodeURIComponent(row[idKey])}&cat=${encodeURIComponent(cat || '')}&level=${encodeURIComponent(level || '')}`;
+          };
+          listEl.appendChild(div);
+        });
+
+        // Main content rendering
+        document.getElementById("unit-title").textContent = currentLesson[titleKey] || "Lesson";
+
+        if (currentLesson.YouTube) {
+          const videoId = extractYouTubeId(currentLesson.YouTube);
+          if (videoId) {
+            document.getElementById("youtube-preview").innerHTML = `
+              <iframe class="w-full h-full rounded"
+                      src="https://www.youtube.com/embed/${videoId}"
+                      frameborder="0" allowfullscreen></iframe>`;
+          }
+        }
+
+        if (currentLesson["PDF檔案ID (traditionnel)"]) {
+          const id = currentLesson["PDF檔案ID (traditionnel)"];
+          document.getElementById("pdf-tr").classList.remove("hidden");
+          document.getElementById("iframe-tr").src = `https://drive.google.com/file/d/${id}/preview`;
+          document.getElementById("download-tr").href = `https://drive.google.com/uc?export=download&id=${id}`;
+        }
+
+        if (currentLesson["PDF檔案ID (simplifié)"]) {
+          const id = currentLesson["PDF檔案ID (simplifié)"];
+          document.getElementById("pdf-sim").classList.remove("hidden");
+          document.getElementById("iframe-sim").src = `https://drive.google.com/file/d/${id}/preview`;
+          document.getElementById("download-sim").href = `https://drive.google.com/uc?export=download&id=${id}`;
+        }
       });
-
-      const container = document.getElementById("content");
-      container.innerHTML = "";
-
-      Object.entries(grouped).forEach(([category, items]) => {
-        const section = document.createElement("section");
-        section.className = "mb-8";
-        section.innerHTML = `
-          <h2 class="text-xl font-semibold mb-2">${category}</h2>
-          <div class="bg-white rounded-lg shadow divide-y">
-            ${items.map(item => `
-              <div class="flex justify-between items-center p-4 hover:bg-gray-50">
-                <div>
-                  <div class="font-medium">${item["名稱Titre"]}</div>
-                  <div class="text-sm text-gray-500">${item["程度Niveau"] || ""}</div>
-                </div>
-                <a href="unit.html?id=${encodeURIComponent(item["單元ID"])}&cat=${encodeURIComponent(item["分類Catégorie"] || "")}&level=${encodeURIComponent(item["程度Niveau"] || ""}"
-                   class="bg-[#5066af] text-white px-4 py-1 rounded hover:opacity-90 transition">Start</a>
-              </div>
-            `).join("")}
-          </div>
-        `;
-        container.appendChild(section);
-      });
-    }
   </script>
 </body>
 </html>
