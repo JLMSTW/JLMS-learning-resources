@@ -116,16 +116,18 @@
         section.innerHTML = `
           <h2 class="text-xl font-semibold mb-2">${category}</h2>
           <div class="bg-white rounded-lg shadow divide-y">
-            ${items.map(item => `
-              <div class="flex justify-between items-center p-4 hover:bg-gray-50">
-                <div>
-                  <div class="font-medium">${item["名稱Titre"]}</div>
-                  <div class="text-sm text-gray-500">${item["程度Niveau"] || ""}</div>
+            ${items.map(item => {
+              const href = `unit.html?id=${encodeURIComponent(item["單元ID"])}&cat=${encodeURIComponent(cat)}&level=${encodeURIComponent(level)}`;
+              return `
+                <div class="flex justify-between items-center p-4 hover:bg-gray-50">
+                  <div>
+                    <div class="font-medium">${item["名稱Titre"]}</div>
+                    <div class="text-sm text-gray-500">${item["程度Niveau"] || ""}</div>
+                  </div>
+                  <a href="${href}" class="bg-[#5066af] text-white px-4 py-1 rounded hover:opacity-90 transition">Start</a>
                 </div>
-                <a href="unit.html?id=${encodeURIComponent(item["單元ID"])}&cat=${encodeURIComponent(item["分類Catégorie"] || "")}&level=${encodeURIComponent(item["程度Niveau"] || "")}"
-                   class="bg-[#5066af] text-white px-4 py-1 rounded hover:opacity-90 transition">Start</a>
-              </div>
-            `).join("")}
+              `;
+            }).join("")}
           </div>
         `;
         container.appendChild(section);
