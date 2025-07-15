@@ -114,30 +114,27 @@
       .then(res => res.json())
       .then(data => {
         const filtered = data.filter(row => {
-          return (!cat || row["\u5206\u985eCat\u00e9gorie"] === cat) &&
-                 (!level || row["\u7a0b\u5ea6Niveau"] === level);
+          return (!cat || row["分類Catégorie"]?.toLowerCase() === cat.toLowerCase()) &&
+                 (!level || row["程度Niveau"]?.toLowerCase() === level.toLowerCase());
         });
 
-        const currentLesson = filtered.find(row => row["\u55ae\u5143ID"] === lessonId);
+        const currentLesson = filtered.find(row => row["單元ID"] === lessonId);
         if (!currentLesson) return;
 
-        // Sidebar rendering
         const listEl = document.getElementById("unit-list");
         filtered.forEach(row => {
-          const isActive = row["\u55ae\u5143ID"] === lessonId;
+          const isActive = row["單元ID"] === lessonId;
           const div = document.createElement("div");
-          div.className = `p-3 rounded cursor-pointer ${isActive ? 'bg-blue-100 font-semibold' : 'hover:bg-gray-100'}`;
-          div.textContent = row["\u540d\u7a31Titre"];
+          div.className = `p-3 rounded cursor-pointer ${isActive ? 'bg-[#95CACA] font-semibold' : 'hover:bg-gray-100'}`;
+          div.textContent = row["名稱Titre"];
           div.onclick = () => {
-            location.href = `unit.html?id=${encodeURIComponent(row["\u55ae\u5143ID"])}&cat=${encodeURIComponent(cat)}&level=${encodeURIComponent(level)}`;
+            location.href = `unit.html?id=${encodeURIComponent(row["單元ID"])}&cat=${encodeURIComponent(cat || '')}&level=${encodeURIComponent(level || '')}`;
           };
           listEl.appendChild(div);
         });
 
-        // Title
-        document.getElementById("unit-title").textContent = currentLesson["\u540d\u7a31Titre"] || "Lesson";
+        document.getElementById("unit-title").textContent = currentLesson["名稱Titre"] || "Lesson";
 
-        // YouTube
         if (currentLesson.YouTube) {
           const videoId = extractYouTubeId(currentLesson.YouTube);
           if (videoId) {
@@ -148,16 +145,15 @@
           }
         }
 
-        // PDF
-        if (currentLesson["PDF\u6a94\u6848ID (traditionnel)"]) {
-          const id = currentLesson["PDF\u6a94\u6848ID (traditionnel)"];
+        if (currentLesson["PDF檔案ID (traditionnel)"]) {
+          const id = currentLesson["PDF檔案ID (traditionnel)"];
           document.getElementById("pdf-tr").classList.remove("hidden");
           document.getElementById("iframe-tr").src = `https://drive.google.com/file/d/${id}/preview`;
           document.getElementById("download-tr").href = `https://drive.google.com/uc?export=download&id=${id}`;
         }
 
-        if (currentLesson["PDF\u6a94\u6848ID (simplifi\u00e9)"]) {
-          const id = currentLesson["PDF\u6a94\u6848ID (simplifi\u00e9)"];
+        if (currentLesson["PDF檔案ID (simplifié)"]) {
+          const id = currentLesson["PDF檔案ID (simplifié)"];
           document.getElementById("pdf-sim").classList.remove("hidden");
           document.getElementById("iframe-sim").src = `https://drive.google.com/file/d/${id}/preview`;
           document.getElementById("download-sim").href = `https://drive.google.com/uc?export=download&id=${id}`;
