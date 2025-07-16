@@ -26,11 +26,10 @@
 
   <style>
     .unit-block {
-      background-color: #b9c1df;
-      transition: background-color 0.2s ease;
+      background-color: #dce0ef;
+      transition: all 0.2s ease;
     }
     .unit-block:hover {
-      background-color: #aeb6d6;
       font-weight: bold;
     }
   </style>
@@ -38,32 +37,33 @@
 
 <body class="bg-gray-50 text-gray-800 font-['Noto Sans TC'] p-4">
   <div class="max-w-[1024px] mx-auto">
-    <header class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">Free Resources</h1>
+    <!-- Header -->
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 sm:gap-0">
       <div>
-        <span id="status" class="mr-4">Checking login...</span>
-        <button id="loginBtn" class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition">Login</button>
-        <button id="logoutBtn" class="bg-gray-600 text-white px-4 py-1 rounded hover:bg-gray-700 transition hidden">Logout</button>
+        <span id="status" class="block text-sm sm:text-base">Checking login...</span>
+        <button id="logoutBtn" class="mt-1 bg-gray-600 text-white px-4 py-1 rounded hover:bg-gray-700 transition hidden">Logout</button>
       </div>
+      <h1 class="text-2xl font-bold sm:text-right w-full sm:w-auto">Free Resources</h1>
     </header>
 
-    <!-- 回首頁按鈕 -->
+    <!-- Back Button -->
     <div class="mb-6">
-      <a href="index.html" class="inline-block bg-[#5066af] text-white px-4 py-2 rounded hover:bg-[#4054a0] transition text-lg">← Back to Course Index</a>
+      <a href="index.html" class="inline-block bg-[#5066af] text-white px-6 py-2 rounded hover:bg-[#4054a0] transition text-lg">← Back to Course Index</a>
     </div>
 
-    <!-- 篩選器 -->
+    <!-- Filters -->
     <section class="mb-6 flex flex-wrap gap-4 text-lg">
       <label class="flex flex-col">
         Catégorie:
-        <select id="categoryFilter" class="border rounded px-3 py-2 text-base"></select>
+        <select id="categoryFilter" class="border rounded px-4 py-2 text-base"></select>
       </label>
       <label class="flex flex-col">
         Niveau:
-        <select id="levelFilter" class="border rounded px-3 py-2 text-base"></select>
+        <select id="levelFilter" class="border rounded px-4 py-2 text-base"></select>
       </label>
     </section>
 
+    <!-- Content -->
     <main id="content"></main>
   </div>
 
@@ -76,16 +76,16 @@
       if (user) {
         statusEl.textContent = `👋 Welcome, ${user.email}`;
         logoutBtn.classList.remove("hidden");
-        loginBtn.classList.add("hidden");
+        loginBtn?.classList?.add("hidden");
       } else {
         statusEl.textContent = "🔐 Not logged in";
         logoutBtn.classList.add("hidden");
-        loginBtn.classList.remove("hidden");
+        loginBtn?.classList?.remove("hidden");
       }
     });
 
     logoutBtn.onclick = () => firebase.auth().signOut().then(() => location.reload());
-    loginBtn.onclick = () => location.href = "login.html";
+    loginBtn && (loginBtn.onclick = () => location.href = "login.html");
 
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbztppbQ0vQuen9deXXGp99yeWrMsPHYCQn_MKVYl-1WL9AS5Zg7nlVyQrCGa8yxWwnBvg/exec";
     let allData = [];
