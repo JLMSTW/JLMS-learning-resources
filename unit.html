@@ -33,7 +33,7 @@
   </header>
 
   <div class="md:flex gap-6">
-    <!-- Sidebar or Dropdown -->
+    <!-- Sidebar / Dropdown -->
     <aside class="md:w-1/4 mb-6 md:mb-0">
       <div class="block md:hidden mb-4">
         <label for="unit-dropdown" class="block mb-1 font-semibold">Sélectionner une leçon :</label>
@@ -44,7 +44,6 @@
 
     <!-- Main Content -->
     <main class="md:w-3/4" id="unit-content">
-      <!-- Navigation -->
       <div class="bg-[#50afaf] text-white rounded-xl p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-6 text-lg">
         <a href="resources.html" class="hover:underline">← Back to course overview</a>
         <div class="flex gap-4">
@@ -93,21 +92,17 @@
 
     firebase.auth().onAuthStateChanged(user => {
       const statusEl = document.getElementById("status");
-      const loginBtn = document.getElementById("loginBtn");
       const logoutBtn = document.getElementById("logoutBtn");
 
       if (user) {
         statusEl.textContent = `👋 Welcome, ${user.email}`;
         logoutBtn.classList.remove("hidden");
-        loginBtn?.classList?.add("hidden");
       } else {
         statusEl.textContent = "🔐 Not logged in";
         logoutBtn.classList.add("hidden");
-        loginBtn?.classList?.remove("hidden");
       }
 
       logoutBtn.onclick = () => firebase.auth().signOut().then(() => location.reload());
-      loginBtn && (loginBtn.onclick = () => location.href = "login.html");
     });
 
     fetch(SHEET_API_URL)
@@ -135,14 +130,12 @@
         filtered.forEach(row => {
           const isActive = row[idKey] === lessonId;
 
-          // Sidebar for desktop
           const div = document.createElement("div");
           div.className = `p-3 rounded cursor-pointer ${isActive ? 'bg-[#95CACA] font-semibold' : 'hover:bg-gray-100'}`;
           div.textContent = row[titleKey];
           div.onclick = () => location.href = `unit.html?id=${encodeURIComponent(row[idKey])}&cat=${encodeURIComponent(cat || '')}&level=${encodeURIComponent(level || '')}`;
           listEl.appendChild(div);
 
-          // Dropdown for mobile
           const option = document.createElement("option");
           option.value = row[idKey];
           option.textContent = row[titleKey];
@@ -157,6 +150,7 @@
 
         document.getElementById("unit-title").textContent = currentLesson[titleKey] || "Lesson";
 
+        // YouTube
         if (currentLesson.YouTube) {
           const videoId = extractYouTubeId(currentLesson.YouTube);
           if (videoId) {
@@ -167,6 +161,7 @@
           }
         }
 
+        // PDF
         if (currentLesson["PDF檔案ID (traditionnel)"]) {
           const id = currentLesson["PDF檔案ID (traditionnel)"];
           document.getElementById("pdf-tr").classList.remove("hidden");
@@ -179,6 +174,29 @@
           document.getElementById("pdf-sim").classList.remove("hidden");
           document.getElementById("iframe-sim").src = `https://drive.google.com/file/d/${id}/preview`;
           document.getElementById("download-sim").href = `https://drive.google.com/uc?export=download&id=${id}`;
+        }
+
+        // 上一課 / 下一課按鈕邏輯
+        const currentIndex = filtered.findIndex(row => row[idKey] === lessonId);
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+
+        if (currentIndex > 0) {
+          const prevId = filtered[currentIndex - 1][idKey];
+          prevBtn.onclick = () => {
+            location.href = `unit.html?id=${encodeURIComponent(prevId)}&cat=${encodeURIComponent(cat || '')}&level=${encodeURIComponent(level || '')}`;
+          };
+        } else {
+          prevBtn.classList.add("opacity-50", "pointer-events-none");
+        }
+
+        if (currentIndex < filtered.length - 1) {
+          const nextId = filtered[currentIndex + 1][idKey];
+          nextBtn.onclick = () => {
+            location.href = `unit.html?id=${encodeURIComponent(nextId)}&cat=${encodeURIComponent(cat || '')}&level=${encodeURIComponent(level || '')}`;
+          };
+        } else {
+          nextBtn.classList.add("opacity-50", "pointer-events-none");
         }
       });
   </script>
