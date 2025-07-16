@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Free Resources | JLMS</title>
 
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet"/>
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
@@ -25,28 +23,49 @@
     };
     firebase.initializeApp(firebaseConfig);
   </script>
+
+  <style>
+    .unit-block {
+      background-color: #b9c1df;
+      transition: background-color 0.2s ease;
+    }
+    .unit-block:hover {
+      background-color: #aeb6d6;
+      font-weight: bold;
+    }
+  </style>
 </head>
 
 <body class="bg-gray-50 text-gray-800 font-['Noto Sans TC'] p-4">
-  <header class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Free Resources</h1>
-    <div>
-      <span id="status" class="mr-4">Checking login...</span>
-      <button id="loginBtn" class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition">Login</button>
-      <button id="logoutBtn" class="bg-gray-600 text-white px-4 py-1 rounded hover:bg-gray-700 transition hidden">Logout</button>
+  <div class="max-w-[1024px] mx-auto">
+    <header class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Free Resources</h1>
+      <div>
+        <span id="status" class="mr-4">Checking login...</span>
+        <button id="loginBtn" class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition">Login</button>
+        <button id="logoutBtn" class="bg-gray-600 text-white px-4 py-1 rounded hover:bg-gray-700 transition hidden">Logout</button>
+      </div>
+    </header>
+
+    <!-- 回首頁按鈕 -->
+    <div class="mb-6">
+      <a href="index.html" class="inline-block bg-[#5066af] text-white px-4 py-2 rounded hover:bg-[#4054a0] transition text-lg">← Back to Course Index</a>
     </div>
-  </header>
 
-  <section class="mb-6 flex gap-4">
-    <label>Catégorie:
-      <select id="categoryFilter" class="border rounded p-1"></select>
-    </label>
-    <label>Niveau:
-      <select id="levelFilter" class="border rounded p-1"></select>
-    </label>
-  </section>
+    <!-- 篩選器 -->
+    <section class="mb-6 flex flex-wrap gap-4 text-lg">
+      <label class="flex flex-col">
+        Catégorie:
+        <select id="categoryFilter" class="border rounded px-3 py-2 text-base"></select>
+      </label>
+      <label class="flex flex-col">
+        Niveau:
+        <select id="levelFilter" class="border rounded px-3 py-2 text-base"></select>
+      </label>
+    </section>
 
-  <main id="content"></main>
+    <main id="content"></main>
+  </div>
 
   <script>
     const statusEl = document.getElementById("status");
@@ -119,10 +138,10 @@
             ${items.map(item => {
               const href = `unit.html?id=${encodeURIComponent(item["單元ID"])}&cat=${encodeURIComponent(cat)}&level=${encodeURIComponent(level)}`;
               return `
-                <div class="flex justify-between items-center p-4 hover:bg-gray-50">
+                <div class="flex justify-between items-center p-4 unit-block cursor-pointer">
                   <div>
                     <div class="font-medium">${item["名稱Titre"]}</div>
-                    <div class="text-sm text-gray-500">${item["程度Niveau"] || ""}</div>
+                    <div class="text-sm text-gray-700">${item["程度Niveau"] || ""}</div>
                   </div>
                   <a href="${href}" class="bg-[#5066af] text-white px-4 py-1 rounded hover:opacity-90 transition">Start</a>
                 </div>
