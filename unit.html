@@ -162,7 +162,7 @@
         }
   
         // PDF 判斷邏輯
-        const canDownload = (currentLesson["可否下載PDF"] || "").toLowerCase().trim() !== "no";
+        const canDownload = (currentLesson["是否可下載(Downloadable)"] || "").toLowerCase().trim() !== "no";
   
         // 傳統 PDF
         const trId = currentLesson["PDF檔案ID (traditionnel)"];
