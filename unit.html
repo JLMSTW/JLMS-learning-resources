@@ -79,7 +79,7 @@
     const lessonId = params.get("id");
     const cat = params.get("cat");
     const level = params.get("level");
-
+  
     function extractYouTubeId(url) {
       try {
         const yt = new URL(url);
@@ -89,11 +89,11 @@
         return null;
       }
     }
-
+  
     firebase.auth().onAuthStateChanged(user => {
       const statusEl = document.getElementById("status");
       const logoutBtn = document.getElementById("logoutBtn");
-
+  
       if (user) {
         statusEl.textContent = `👋 Welcome, ${user.email}`;
         logoutBtn.classList.remove("hidden");
@@ -101,10 +101,10 @@
         statusEl.textContent = "🔐 Not logged in";
         logoutBtn.classList.add("hidden");
       }
-
+  
       logoutBtn.onclick = () => firebase.auth().signOut().then(() => location.reload());
     });
-
+  
     fetch(SHEET_API_URL)
       .then(res => res.json())
       .then(data => {
@@ -112,7 +112,7 @@
         const idKey = Object.keys(data[0]).find(k => k.includes("ID"));
         const catKey = Object.keys(data[0]).find(k => k.includes("Cat"));
         const levelKey = Object.keys(data[0]).find(k => k.includes("Niveau"));
-
+  
         const filtered = data.filter(row => {
           const rowCat = (row[catKey] || "").toLowerCase();
           const rowLevel = (row[levelKey] || "").toLowerCase();
@@ -121,35 +121,35 @@
           if (cat && level) return rowCat === cat.toLowerCase() && rowLevel === level.toLowerCase();
           return true;
         });
-
+  
         const currentLesson = filtered.find(row => row[idKey] === lessonId);
         if (!currentLesson) return;
-
+  
         const listEl = document.getElementById("unit-list");
         const dropdownEl = document.getElementById("unit-dropdown");
         filtered.forEach(row => {
           const isActive = row[idKey] === lessonId;
-
+  
           const div = document.createElement("div");
           div.className = `p-3 rounded cursor-pointer ${isActive ? 'bg-[#95CACA] font-semibold' : 'hover:bg-gray-100'}`;
           div.textContent = row[titleKey];
           div.onclick = () => location.href = `unit.html?id=${encodeURIComponent(row[idKey])}&cat=${encodeURIComponent(cat || '')}&level=${encodeURIComponent(level || '')}`;
           listEl.appendChild(div);
-
+  
           const option = document.createElement("option");
           option.value = row[idKey];
           option.textContent = row[titleKey];
           if (isActive) option.selected = true;
           dropdownEl.appendChild(option);
         });
-
+  
         dropdownEl.onchange = () => {
           const selectedId = dropdownEl.value;
           location.href = `unit.html?id=${encodeURIComponent(selectedId)}&cat=${encodeURIComponent(cat || '')}&level=${encodeURIComponent(level || '')}`;
         };
-
+  
         document.getElementById("unit-title").textContent = currentLesson[titleKey] || "Lesson";
-
+  
         // YouTube
         if (currentLesson.YouTube) {
           const videoId = extractYouTubeId(currentLesson.YouTube);
@@ -160,27 +160,59 @@
                       frameborder="0" allowfullscreen></iframe>`;
           }
         }
-
-        // PDF
-        if (currentLesson["PDF檔案ID (traditionnel)"]) {
-          const id = currentLesson["PDF檔案ID (traditionnel)"];
-          document.getElementById("pdf-tr").classList.remove("hidden");
-          document.getElementById("iframe-tr").src = `https://drive.google.com/file/d/${id}/preview`;
-          document.getElementById("download-tr").href = `https://drive.google.com/uc?export=download&id=${id}`;
+  
+        // PDF 判斷邏輯
+        const canDownload = (currentLesson["可否下載PDF"] || "").toLowerCase().trim() !== "no";
+  
+        // 傳統 PDF
+        const trId = currentLesson["PDF檔案ID (traditionnel)"];
+        const trBlock = document.getElementById("pdf-tr");
+        const trFrame = document.getElementById("iframe-tr");
+        const trLink = document.getElementById("download-tr");
+  
+        if (trId) {
+          trBlock.classList.remove("hidden");
+          if (canDownload) {
+            trFrame.src = `https://drive.google.com/file/d/${trId}/preview`;
+            trLink.href = `https://drive.google.com/uc?export=download&id=${trId}`;
+            trLink.textContent = "Download PDF";
+          } else {
+            trFrame.remove();
+            trLink.textContent = "📌 This material is view-only and not available for download. / Ce matériel est uniquement consultable en ligne et ne peut pas être téléchargé.";
+            trLink.removeAttribute("href");
+          }
+        } else {
+          trBlock.classList.remove("hidden");
+          trBlock.innerHTML = `<p class="text-gray-600">📌 No document available. / Aucun document disponible.</p>`;
         }
-
-        if (currentLesson["PDF檔案ID (simplifié)"]) {
-          const id = currentLesson["PDF檔案ID (simplifié)"];
-          document.getElementById("pdf-sim").classList.remove("hidden");
-          document.getElementById("iframe-sim").src = `https://drive.google.com/file/d/${id}/preview`;
-          document.getElementById("download-sim").href = `https://drive.google.com/uc?export=download&id=${id}`;
+  
+        // 簡體 PDF
+        const simId = currentLesson["PDF檔案ID (simplifié)"];
+        const simBlock = document.getElementById("pdf-sim");
+        const simFrame = document.getElementById("iframe-sim");
+        const simLink = document.getElementById("download-sim");
+  
+        if (simId) {
+          simBlock.classList.remove("hidden");
+          if (canDownload) {
+            simFrame.src = `https://drive.google.com/file/d/${simId}/preview`;
+            simLink.href = `https://drive.google.com/uc?export=download&id=${simId}`;
+            simLink.textContent = "Download PDF";
+          } else {
+            simFrame.remove();
+            simLink.textContent = "📌 This material is view-only and not available for download. / Ce matériel est uniquement consultable en ligne et ne peut pas être téléchargé.";
+            simLink.removeAttribute("href");
+          }
+        } else {
+          simBlock.classList.remove("hidden");
+          simBlock.innerHTML = `<p class="text-gray-600">📌 No document available. / Aucun document disponible.</p>`;
         }
-
-        // 上一課 / 下一課按鈕邏輯
+  
+        // 上一課 / 下一課邏輯
         const currentIndex = filtered.findIndex(row => row[idKey] === lessonId);
         const prevBtn = document.getElementById("prevBtn");
         const nextBtn = document.getElementById("nextBtn");
-
+  
         if (currentIndex > 0) {
           const prevId = filtered[currentIndex - 1][idKey];
           prevBtn.onclick = () => {
@@ -189,7 +221,7 @@
         } else {
           prevBtn.classList.add("opacity-50", "pointer-events-none");
         }
-
+  
         if (currentIndex < filtered.length - 1) {
           const nextId = filtered[currentIndex + 1][idKey];
           nextBtn.onclick = () => {
@@ -200,5 +232,4 @@
         }
       });
   </script>
-</body>
-</html>
+  
