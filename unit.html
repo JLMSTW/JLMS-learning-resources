@@ -62,174 +62,151 @@
         <div id="pdf-tr" class="hidden max-w-[768px] mx-auto">
           <h2 class="font-semibold text-lg mb-2">📄 PDF (Traditionnel)</h2>
           <iframe class="w-full h-[640px] border rounded" id="iframe-tr" src=""></iframe>
+          <div id="tr-note" class="text-sm text-gray-600 mt-1"></div>
           <a id="download-tr" href="#" class="text-blue-600 hover:underline block mt-1" download>Download PDF</a>
         </div>
         <div id="pdf-sim" class="hidden max-w-[768px] mx-auto">
           <h2 class="font-semibold text-lg mb-2">📄 PDF (Simplifié)</h2>
           <iframe class="w-full h-[640px] border rounded" id="iframe-sim" src=""></iframe>
+          <div id="sim-note" class="text-sm text-gray-600 mt-1"></div>
           <a id="download-sim" href="#" class="text-blue-600 hover:underline block mt-1" download>Download PDF</a>
         </div>
       </div>
     </main>
   </div>
-
   <script>
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbztppbQ0vQuen9deXXGp99yeWrMsPHYCQn_MKVYl-1WL9AS5Zg7nlVyQrCGa8yxWwnBvg/exec";
-    const params = new URLSearchParams(window.location.search);
-    const lessonId = params.get("id");
-    const cat = params.get("cat");
-    const level = params.get("level");
   
-    function extractYouTubeId(url) {
-      try {
-        const yt = new URL(url);
-        if (yt.hostname.includes("youtu.be")) return yt.pathname.slice(1);
-        if (yt.searchParams.get("v")) return yt.searchParams.get("v");
-      } catch (e) {
-        return null;
-      }
-    }
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentId = urlParams.get("id");
+    const currentCat = urlParams.get("cat") || "";
+    const currentLevel = urlParams.get("level") || "";
+  
+    const statusEl = document.getElementById("status");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const unitTitleEl = document.getElementById("unit-title");
+    const unitListEl = document.getElementById("unit-list");
+    const dropdownEl = document.getElementById("unit-dropdown");
+    const iframeTr = document.getElementById("iframe-tr");
+    const iframeSim = document.getElementById("iframe-sim");
+    const downloadTr = document.getElementById("download-tr");
+    const downloadSim = document.getElementById("download-sim");
+    const trNote = document.getElementById("tr-note");
+    const simNote = document.getElementById("sim-note");
+    const sectionTr = document.getElementById("pdf-tr");
+    const sectionSim = document.getElementById("pdf-sim");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
   
     firebase.auth().onAuthStateChanged(user => {
-      const statusEl = document.getElementById("status");
-      const logoutBtn = document.getElementById("logoutBtn");
-  
       if (user) {
         statusEl.textContent = `👋 Welcome, ${user.email}`;
         logoutBtn.classList.remove("hidden");
       } else {
         statusEl.textContent = "🔐 Not logged in";
         logoutBtn.classList.add("hidden");
+        location.href = "login.html";
       }
-  
-      logoutBtn.onclick = () => firebase.auth().signOut().then(() => location.reload());
     });
+    logoutBtn.onclick = () => firebase.auth().signOut().then(() => location.reload());
+  
+    let units = [];
   
     fetch(SHEET_API_URL)
       .then(res => res.json())
       .then(data => {
-        const titleKey = Object.keys(data[0]).find(k => k.includes("Titre"));
-        const idKey = Object.keys(data[0]).find(k => k.includes("ID"));
-        const catKey = Object.keys(data[0]).find(k => k.includes("Cat"));
-        const levelKey = Object.keys(data[0]).find(k => k.includes("Niveau"));
+        // 根據分類與程度過濾
+        units = data.filter(row =>
+          (!currentCat || row["分類Catégorie"] === currentCat) &&
+          (!currentLevel || row["程度Niveau"] === currentLevel)
+        );
   
-        const filtered = data.filter(row => {
-          const rowCat = (row[catKey] || "").toLowerCase();
-          const rowLevel = (row[levelKey] || "").toLowerCase();
-          if (cat && !level) return rowCat === cat.toLowerCase();
-          if (!cat && level) return rowLevel === level.toLowerCase();
-          if (cat && level) return rowCat === cat.toLowerCase() && rowLevel === level.toLowerCase();
-          return true;
-        });
-  
-        const currentLesson = filtered.find(row => row[idKey] === lessonId);
-        if (!currentLesson) return;
-  
-        const listEl = document.getElementById("unit-list");
-        const dropdownEl = document.getElementById("unit-dropdown");
-        filtered.forEach(row => {
-          const isActive = row[idKey] === lessonId;
-  
-          const div = document.createElement("div");
-          div.className = `p-3 rounded cursor-pointer ${isActive ? 'bg-[#95CACA] font-semibold' : 'hover:bg-gray-100'}`;
-          div.textContent = row[titleKey];
-          div.onclick = () => location.href = `unit.html?id=${encodeURIComponent(row[idKey])}&cat=${encodeURIComponent(cat || '')}&level=${encodeURIComponent(level || '')}`;
-          listEl.appendChild(div);
-  
-          const option = document.createElement("option");
-          option.value = row[idKey];
-          option.textContent = row[titleKey];
-          if (isActive) option.selected = true;
-          dropdownEl.appendChild(option);
-        });
-  
-        dropdownEl.onchange = () => {
-          const selectedId = dropdownEl.value;
-          location.href = `unit.html?id=${encodeURIComponent(selectedId)}&cat=${encodeURIComponent(cat || '')}&level=${encodeURIComponent(level || '')}`;
-        };
-  
-        document.getElementById("unit-title").textContent = currentLesson[titleKey] || "Lesson";
-  
-        // YouTube
-        if (currentLesson.YouTube) {
-          const videoId = extractYouTubeId(currentLesson.YouTube);
-          if (videoId) {
-            document.getElementById("youtube-preview").innerHTML = `
-              <iframe class="w-full h-full rounded"
-                      src="https://www.youtube.com/embed/${videoId}"
-                      frameborder="0" allowfullscreen></iframe>`;
-          }
+        const currentIndex = units.findIndex(u => u["單元ID"] === currentId);
+        if (currentIndex === -1) {
+          unitTitleEl.textContent = "Unit not found.";
+          return;
         }
   
-        // PDF 判斷邏輯
-        const canDownload = (currentLesson["是否可下載(Downloadable)"] || "").toLowerCase().trim() !== "no";
+        renderUnitList(units, currentIndex);
+        renderUnit(units[currentIndex]);
   
-        // 傳統 PDF
-        const trId = currentLesson["PDF檔案ID (traditionnel)"];
-        const trBlock = document.getElementById("pdf-tr");
-        const trFrame = document.getElementById("iframe-tr");
-        const trLink = document.getElementById("download-tr");
-  
-        if (trId) {
-          trBlock.classList.remove("hidden");
-          if (canDownload) {
-            trFrame.src = `https://drive.google.com/file/d/${trId}/preview`;
-            trLink.href = `https://drive.google.com/uc?export=download&id=${trId}`;
-            trLink.textContent = "Download PDF";
-          } else {
-            trFrame.remove();
-            trLink.textContent = "📌 This material is view-only and not available for download. / Ce matériel est uniquement consultable en ligne et ne peut pas être téléchargé.";
-            trLink.removeAttribute("href");
-          }
-        } else {
-          trBlock.classList.remove("hidden");
-          trBlock.innerHTML = `<p class="text-gray-600">📌 No document available. / Aucun document disponible.</p>`;
-        }
-  
-        // 簡體 PDF
-        const simId = currentLesson["PDF檔案ID (simplifié)"];
-        const simBlock = document.getElementById("pdf-sim");
-        const simFrame = document.getElementById("iframe-sim");
-        const simLink = document.getElementById("download-sim");
-  
-        if (simId) {
-          simBlock.classList.remove("hidden");
-          if (canDownload) {
-            simFrame.src = `https://drive.google.com/file/d/${simId}/preview`;
-            simLink.href = `https://drive.google.com/uc?export=download&id=${simId}`;
-            simLink.textContent = "Download PDF";
-          } else {
-            simFrame.remove();
-            simLink.textContent = "📌 This material is view-only and not available for download. / Ce matériel est uniquement consultable en ligne et ne peut pas être téléchargé.";
-            simLink.removeAttribute("href");
-          }
-        } else {
-          simBlock.classList.remove("hidden");
-          simBlock.innerHTML = `<p class="text-gray-600">📌 No document available. / Aucun document disponible.</p>`;
-        }
-  
-        // 上一課 / 下一課邏輯
-        const currentIndex = filtered.findIndex(row => row[idKey] === lessonId);
-        const prevBtn = document.getElementById("prevBtn");
-        const nextBtn = document.getElementById("nextBtn");
-  
-        if (currentIndex > 0) {
-          const prevId = filtered[currentIndex - 1][idKey];
-          prevBtn.onclick = () => {
-            location.href = `unit.html?id=${encodeURIComponent(prevId)}&cat=${encodeURIComponent(cat || '')}&level=${encodeURIComponent(level || '')}`;
-          };
-        } else {
-          prevBtn.classList.add("opacity-50", "pointer-events-none");
-        }
-  
-        if (currentIndex < filtered.length - 1) {
-          const nextId = filtered[currentIndex + 1][idKey];
-          nextBtn.onclick = () => {
-            location.href = `unit.html?id=${encodeURIComponent(nextId)}&cat=${encodeURIComponent(cat || '')}&level=${encodeURIComponent(level || '')}`;
-          };
-        } else {
-          nextBtn.classList.add("opacity-50", "pointer-events-none");
-        }
+        // 上下頁邏輯
+        prevBtn.href = currentIndex > 0 ? `unit.html?id=${units[currentIndex - 1]["單元ID"]}&cat=${currentCat}&level=${currentLevel}` : "#";
+        prevBtn.classList.toggle("opacity-30", currentIndex === 0);
+        nextBtn.href = currentIndex < units.length - 1 ? `unit.html?id=${units[currentIndex + 1]["單元ID"]}&cat=${currentCat}&level=${currentLevel}` : "#";
+        nextBtn.classList.toggle("opacity-30", currentIndex === units.length - 1);
       });
+  
+    function renderUnitList(units, currentIndex) {
+      unitListEl.innerHTML = "";
+      dropdownEl.innerHTML = "";
+  
+      units.forEach((unit, idx) => {
+        // 側邊欄
+        const link = document.createElement("a");
+        link.href = `unit.html?id=${unit["單元ID"]}&cat=${currentCat}&level=${currentLevel}`;
+        link.textContent = unit["名稱Titre"];
+        link.className = "block p-2 rounded hover:bg-gray-200" + (idx === currentIndex ? " bg-[#50afaf] text-white" : "");
+        unitListEl.appendChild(link);
+  
+        // dropdown
+        const opt = document.createElement("option");
+        opt.value = unit["單元ID"];
+        opt.textContent = unit["名稱Titre"];
+        dropdownEl.appendChild(opt);
+      });
+  
+      dropdownEl.value = units[currentIndex]["單元ID"];
+      dropdownEl.onchange = () => {
+        const selected = dropdownEl.value;
+        location.href = `unit.html?id=${selected}&cat=${currentCat}&level=${currentLevel}`;
+      };
+    }
+  
+    function renderUnit(unit) {
+      unitTitleEl.textContent = unit["名稱Titre"];
+  
+      // YouTube
+      const youtubeContainer = document.getElementById("youtube-preview");
+      youtubeContainer.innerHTML = "";
+      if (unit["YouTube連結URL"]) {
+        const videoId = extractYouTubeId(unit["YouTube連結URL"]);
+        youtubeContainer.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+      }
+  
+      // PDF - 傳統
+      const trId = unit["PDF檔案ID (traditionnel)"];
+      const trDownloadable = (unit["是否可下載(Downloadable)"] || "").toLowerCase() !== "no";
+      if (trId) {
+        sectionTr.classList.remove("hidden");
+        iframeTr.src = `https://drive.google.com/file/d/${trId}/preview`;
+        downloadTr.href = `https://drive.google.com/uc?id=${trId}&export=download`;
+        downloadTr.style.display = trDownloadable ? "inline" : "none";
+        trNote.textContent = trDownloadable ? "" : "⚠️ This material is only available for online preview. Download is not allowed.";
+      } else {
+        sectionTr.classList.add("hidden");
+      }
+  
+      // PDF - 簡體
+      const simId = unit["PDF檔案ID (simplifié)"];
+      const simDownloadable = (unit["是否可下載(Downloadable)"] || "").toLowerCase() !== "no";
+      if (simId) {
+        sectionSim.classList.remove("hidden");
+        iframeSim.src = `https://drive.google.com/file/d/${simId}/preview`;
+        downloadSim.href = `https://drive.google.com/uc?id=${simId}&export=download`;
+        downloadSim.style.display = simDownloadable ? "inline" : "none";
+        simNote.textContent = simDownloadable ? "" : "⚠️ Ce document est uniquement disponible pour la lecture en ligne. Le téléchargement n'est pas autorisé.";
+      } else {
+        sectionSim.classList.add("hidden");
+      }
+    }
+  
+    function extractYouTubeId(url) {
+      const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/;
+      const match = url.match(regExp);
+      return match && match[1] ? match[1] : null;
+    }
   </script>
   
+  </body>
+  </html>
