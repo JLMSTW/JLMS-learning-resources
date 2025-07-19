@@ -33,7 +33,7 @@
   </header>
 
   <div class="md:flex gap-6">
-    <!-- Sidebar / Dropdown -->
+    <!-- Sidebar -->
     <aside class="md:w-1/4 mb-6 md:mb-0">
       <div class="block md:hidden mb-4">
         <label for="unit-dropdown" class="block mb-1 font-semibold">Sélectionner une leçon :</label>
@@ -74,14 +74,15 @@
       </div>
     </main>
   </div>
+
   <script>
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbztppbQ0vQuen9deXXGp99yeWrMsPHYCQn_MKVYl-1WL9AS5Zg7nlVyQrCGa8yxWwnBvg/exec";
-  
+
     const urlParams = new URLSearchParams(window.location.search);
     const currentId = urlParams.get("id");
     const currentCat = urlParams.get("cat") || "";
     const currentLevel = urlParams.get("level") || "";
-  
+
     const statusEl = document.getElementById("status");
     const logoutBtn = document.getElementById("logoutBtn");
     const unitTitleEl = document.getElementById("unit-title");
@@ -97,7 +98,7 @@
     const sectionSim = document.getElementById("pdf-sim");
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
-  
+
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         statusEl.textContent = `👋 Welcome, ${user.email}`;
@@ -109,72 +110,73 @@
       }
     });
     logoutBtn.onclick = () => firebase.auth().signOut().then(() => location.reload());
-  
+
     let units = [];
-  
+
     fetch(SHEET_API_URL)
       .then(res => res.json())
       .then(data => {
-        // 根據分類與程度過濾
         units = data.filter(row =>
           (!currentCat || row["分類Catégorie"] === currentCat) &&
           (!currentLevel || row["程度Niveau"] === currentLevel)
         );
-  
+
         const currentIndex = units.findIndex(u => u["單元ID"] === currentId);
         if (currentIndex === -1) {
           unitTitleEl.textContent = "Unit not found.";
           return;
         }
-  
+
         renderUnitList(units, currentIndex);
         renderUnit(units[currentIndex]);
-  
-        // 上下頁邏輯
+
         prevBtn.href = currentIndex > 0 ? `unit.html?id=${units[currentIndex - 1]["單元ID"]}&cat=${currentCat}&level=${currentLevel}` : "#";
         prevBtn.classList.toggle("opacity-30", currentIndex === 0);
         nextBtn.href = currentIndex < units.length - 1 ? `unit.html?id=${units[currentIndex + 1]["單元ID"]}&cat=${currentCat}&level=${currentLevel}` : "#";
         nextBtn.classList.toggle("opacity-30", currentIndex === units.length - 1);
       });
-  
+
     function renderUnitList(units, currentIndex) {
       unitListEl.innerHTML = "";
       dropdownEl.innerHTML = "";
-  
+
       units.forEach((unit, idx) => {
-        // 側邊欄
         const link = document.createElement("a");
         link.href = `unit.html?id=${unit["單元ID"]}&cat=${currentCat}&level=${currentLevel}`;
         link.textContent = unit["名稱Titre"];
         link.className = "block p-2 rounded hover:bg-gray-200" + (idx === currentIndex ? " bg-[#50afaf] text-white" : "");
         unitListEl.appendChild(link);
-  
-        // dropdown
+
         const opt = document.createElement("option");
         opt.value = unit["單元ID"];
         opt.textContent = unit["名稱Titre"];
         dropdownEl.appendChild(opt);
       });
-  
+
       dropdownEl.value = units[currentIndex]["單元ID"];
       dropdownEl.onchange = () => {
         const selected = dropdownEl.value;
         location.href = `unit.html?id=${selected}&cat=${currentCat}&level=${currentLevel}`;
       };
     }
-  
+
     function renderUnit(unit) {
       unitTitleEl.textContent = unit["名稱Titre"];
-  
-      // YouTube
+
+      // ✅ YouTube 顯示邏輯
       const youtubeContainer = document.getElementById("youtube-preview");
       youtubeContainer.innerHTML = "";
-      if (unit["YouTube連結URL"]) {
-        const videoId = extractYouTubeId(unit["YouTube連結URL"]);
-        youtubeContainer.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+      if (unit.YouTube) {
+        const videoId = extractYouTubeId(unit.YouTube);
+        if (videoId) {
+          youtubeContainer.innerHTML = `
+            <iframe class="w-full h-full rounded"
+                    src="https://www.youtube.com/embed/${videoId}"
+                    frameborder="0" allowfullscreen></iframe>`;
+        }
       }
-  
-      // PDF - 傳統
+
+      // ✅ PDF - 傳統
       const trId = unit["PDF檔案ID (traditionnel)"];
       const trDownloadable = (unit["是否可下載(Downloadable)"] || "").toLowerCase() !== "no";
       if (trId) {
@@ -182,12 +184,12 @@
         iframeTr.src = `https://drive.google.com/file/d/${trId}/preview`;
         downloadTr.href = `https://drive.google.com/uc?id=${trId}&export=download`;
         downloadTr.style.display = trDownloadable ? "inline" : "none";
-        trNote.textContent = trDownloadable ? "" : "⚠️ This material is only available for online preview. Download is not allowed.";
+        trNote.textContent = trDownloadable ? "" : "⚠️ Ce document est uniquement disponible pour la lecture en ligne. Le téléchargement n'est pas autorisé.";
       } else {
         sectionTr.classList.add("hidden");
       }
-  
-      // PDF - 簡體
+
+      // ✅ PDF - 簡體
       const simId = unit["PDF檔案ID (simplifié)"];
       const simDownloadable = (unit["是否可下載(Downloadable)"] || "").toLowerCase() !== "no";
       if (simId) {
@@ -200,13 +202,13 @@
         sectionSim.classList.add("hidden");
       }
     }
-  
+
     function extractYouTubeId(url) {
       const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/;
       const match = url.match(regExp);
       return match && match[1] ? match[1] : null;
     }
   </script>
-  
-  </body>
-  </html>
+
+</body>
+</html>
