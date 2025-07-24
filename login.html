@@ -8,6 +8,9 @@
   <!-- ✅ Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet">
 
+  <!-- ✅ Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
   <!-- ✅ Firebase CDN (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -24,14 +27,14 @@
     };
     firebase.initializeApp(firebaseConfig);
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-  
+
     function cred() {
       return {
         email: document.getElementById('email').value.trim(),
         password: document.getElementById('password').value
       };
     }
-  
+
     function login() {
       const { email, password } = cred();
       firebase.auth().signInWithEmailAndPassword(email, password)
@@ -46,7 +49,7 @@
         })
         .catch(e => alert('登入失敗：' + e.message));
     }
-  
+
     function signup() {
       const { email, password } = cred();
       firebase.auth().createUserWithEmailAndPassword(email, password)
@@ -62,52 +65,36 @@
         .catch(e => alert('註冊失敗：' + e.message));
     }
   </script>
-  
+
   <style>
     body {
       font-family: 'Noto Sans TC', sans-serif;
-      padding: 2rem;
-    }
-
-    label {
-      display: block;
-      margin: 0.5rem 0;
-    }
-
-    button {
-      margin-right: 0.5rem;
-    }
-
-    /* ✅ 手機 RWD 優化 */
-    @media (max-width: 768px) {
-      body {
-        padding: 1rem;
-      }
-
-      h1 {
-        font-size: 1.5rem;
-      }
-
-      button {
-        font-size: 1rem;
-        padding: 0.5rem 1rem;
-      }
     }
   </style>
 </head>
 
-<body>
-  <h1>Log in / Sign up</h1>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <h1 class="text-2xl font-semibold text-center mb-6">Log in / Sign up</h1>
 
-  <label>Email:
-    <input type="email" id="email" required autocomplete="username" />
-  </label>
+    <label class="block mb-4">
+      <span class="block text-gray-700 mb-1">Email</span>
+      <input type="email" id="email" required autocomplete="username"
+             class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+    </label>
 
-  <label>Password:
-    <input type="password" id="password" required autocomplete="current-password" />
-  </label>
+    <label class="block mb-6">
+      <span class="block text-gray-700 mb-1">Password</span>
+      <input type="password" id="password" required autocomplete="current-password"
+             class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+    </label>
 
-  <button onclick="login()">Log in</button>
-  <button onclick="signup()">Sign up</button>
+    <div class="flex justify-between">
+      <button onclick="login()"
+              class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800 transition">Log in</button>
+      <button onclick="signup()"
+              class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800 transition">Sign up</button>
+    </div>
+  </div>
 </body>
 </html>
