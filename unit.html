@@ -189,7 +189,7 @@
         sectionTr.classList.add("hidden");
         trNote.textContent = "📌 Aucun document disponible./📌 No document available.";
         trNote.classList.remove("hidden");
-        console.log("⚠️ 無 PDF，顯示提醒 trNote");
+        trNote.style.display = "block"; // ✅ 強制顯示
       }
 
       // ✅ PDF - 簡體
@@ -205,7 +205,7 @@
         sectionSim.classList.add("hidden");
         simNote.textContent = "📌 Aucun document disponible./📌 No document available.";
         simNote.classList.remove("hidden");
-        console.log("⚠️ 無 PDF，顯示提醒 trNote");
+        trNote.style.display = "block"; // ✅ 強制顯示
       }
     }
 
