@@ -184,9 +184,11 @@
         iframeTr.src = `https://drive.google.com/file/d/${trId}/preview`;
         downloadTr.href = `https://drive.google.com/uc?id=${trId}&export=download`;
         downloadTr.style.display = trDownloadable ? "inline" : "none";
-        trNote.textContent = trDownloadable ? "" : "⚠️ Ce document est uniquement disponible pour la lecture en ligne. Le téléchargement n'est pas autorisé.";
+        trNote.textContent = trDownloadable ? "" : "⚠️ Ce document est uniquement disponible pour la lecture en ligne. Le téléchargement n'est pas autorisé./ This material is view-only and not available for download.";
       } else {
         sectionTr.classList.add("hidden");
+        trNote.textContent = "📌 Aucun document disponible./📌 No document available.";
+        trNote.classList.remove("hidden");
       }
 
       // ✅ PDF - 簡體
@@ -197,9 +199,11 @@
         iframeSim.src = `https://drive.google.com/file/d/${simId}/preview`;
         downloadSim.href = `https://drive.google.com/uc?id=${simId}&export=download`;
         downloadSim.style.display = simDownloadable ? "inline" : "none";
-        simNote.textContent = simDownloadable ? "" : "⚠️ Ce document est uniquement disponible pour la lecture en ligne. Le téléchargement n'est pas autorisé.";
+        simNote.textContent = simDownloadable ? "" : "⚠️ Ce document est uniquement disponible pour la lecture en ligne. Le téléchargement n'est pas autorisé. / This material is view-only and not available for download.";
       } else {
         sectionSim.classList.add("hidden");
+        simNote.textContent = "📌 Aucun document disponible./📌 No document available.";
+        simNote.classList.remove("hidden");
       }
     }
 
