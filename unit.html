@@ -62,13 +62,13 @@
         <div id="pdf-tr" class="hidden max-w-[768px] mx-auto">
           <h2 class="font-semibold text-lg mb-2">📄 PDF (Traditionnel)</h2>
           <iframe class="w-full h-[640px] border rounded" id="iframe-tr" src=""></iframe>
-          <p id="tr-note" class="text-sm text-gray-600 mt-1 hidden"></p> <!-- ✅ 修正 -->
+          <p id="tr-note" class="text-sm text-gray-600 mt-1 hidden"></p>
           <a id="download-tr" href="#" class="text-blue-600 hover:underline block mt-1" download>Download PDF</a>
         </div>
         <div id="pdf-sim" class="hidden max-w-[768px] mx-auto">
           <h2 class="font-semibold text-lg mb-2">📄 PDF (Simplifié)</h2>
           <iframe class="w-full h-[640px] border rounded" id="iframe-sim" src=""></iframe>
-          <p id="sim-note" class="text-sm text-gray-600 mt-1 hidden"></p> <!-- ✅ 修正 -->
+          <p id="sim-note" class="text-sm text-gray-600 mt-1 hidden"></p>
           <a id="download-sim" href="#" class="text-blue-600 hover:underline block mt-1" download>Download PDF</a>
         </div>
       </div>
@@ -176,36 +176,46 @@
         }
       }
 
-      // ✅ PDF - 傳統
+      // ✅ PDF - 傳統版本
       const trId = unit["PDF檔案ID (traditionnel)"];
       const trDownloadable = (unit["是否可下載(Downloadable)"] || "").toLowerCase() !== "no";
-      if (trId) {
+      
+      if (trId && trId.trim() !== "") {
+        // 有PDF檔案
         sectionTr.classList.remove("hidden");
         iframeTr.src = `https://drive.google.com/file/d/${trId}/preview`;
         downloadTr.href = `https://drive.google.com/uc?id=${trId}&export=download`;
         downloadTr.style.display = trDownloadable ? "inline" : "none";
         trNote.textContent = trDownloadable ? "" : "⚠️ Ce document est uniquement disponible pour la lecture en ligne. Le téléchargement n'est pas autorisé./ This material is view-only and not available for download.";
+        trNote.classList.toggle("hidden", trDownloadable); // 只有不可下載時才顯示警告
       } else {
-        sectionTr.classList.add("hidden");
+        // 沒有PDF檔案 - 顯示警語
+        sectionTr.classList.remove("hidden"); // ✅ 保持section可見
+        iframeTr.src = ""; // 清空iframe
+        downloadTr.style.display = "none"; // 隱藏下載連結
         trNote.textContent = "📌 Aucun document disponible./📌 No document available.";
-        trNote.classList.remove("hidden");
-        trNote.style.display = "block"; // ✅ 強制顯示
+        trNote.classList.remove("hidden"); // ✅ 顯示警語
       }
 
-      // ✅ PDF - 簡體
+      // ✅ PDF - 簡體版本
       const simId = unit["PDF檔案ID (simplifié)"];
       const simDownloadable = (unit["是否可下載(Downloadable)"] || "").toLowerCase() !== "no";
-      if (simId) {
+      
+      if (simId && simId.trim() !== "") {
+        // 有PDF檔案
         sectionSim.classList.remove("hidden");
         iframeSim.src = `https://drive.google.com/file/d/${simId}/preview`;
         downloadSim.href = `https://drive.google.com/uc?id=${simId}&export=download`;
         downloadSim.style.display = simDownloadable ? "inline" : "none";
         simNote.textContent = simDownloadable ? "" : "⚠️ Ce document est uniquement disponible pour la lecture en ligne. Le téléchargement n'est pas autorisé. / This material is view-only and not available for download.";
+        simNote.classList.toggle("hidden", simDownloadable); // 只有不可下載時才顯示警告
       } else {
-        sectionSim.classList.add("hidden");
+        // 沒有PDF檔案 - 顯示警語
+        sectionSim.classList.remove("hidden"); // ✅ 保持section可見
+        iframeSim.src = ""; // 清空iframe
+        downloadSim.style.display = "none"; // 隱藏下載連結
         simNote.textContent = "📌 Aucun document disponible./📌 No document available.";
-        simNote.classList.remove("hidden");
-        trNote.style.display = "block"; // ✅ 強制顯示
+        simNote.classList.remove("hidden"); // ✅ 顯示警語
       }
     }
 
